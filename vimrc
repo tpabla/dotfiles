@@ -47,7 +47,7 @@ filetype plugin indent on     " required
 " Put your stuff after this lineet nocompatible               " be iMproved
 
 set autoindent
-set backspace=4
+set backspace=2
 set clipboard=unnamed
 set noswapfile
 set encoding=utf-8
