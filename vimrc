@@ -61,6 +61,7 @@ set softtabstop=4
 set tabstop=8
 set wildmenu
 set wildmode=longest,list,full
+syntax on
 
 set mouse=a
 if exists('$TMUX')  " Support resizing in tmux
