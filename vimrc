@@ -1,50 +1,38 @@
-set nocompatible              " be iMproved, required
-filetype off                  " required
+" Note: Skip initialization for vim-tiny or vim-small.
+if !1 | finish | endif
 
-" set the runtime path to include Vundle and initialize
-set rtp+=~/.vim/bundle/vundle/
-call vundle#rc()
-" alternatively, pass a path where Vundle should install plugins
-"let path = '~/some/path/here'
-"call vundle#rc(path)
+if has('vim_starting')
+set nocompatible               " Be iMproved
 
-" let Vundle manage Vundle, required
-Plugin 'gmarik/vundle'
+" Required:
+set runtimepath+=~/.vim/bundle/neobundle.vim/
+endif
 
-" The following are examples of different formats supported.
-" Keep Plugin commands between here and filetype plugin indent on.
-" scripts on GitHub repos
-" Plugin 'tpope/vim-fugitive'
-" Plugin 'Lokaltog/vim-easymotion'
-" Plugin 'tpope/vim-rails.git'
-Bundle 'scrooloose/nerdtree'
-Bundle 'kien/ctrlp.vim'
+" Required:
+call neobundle#begin(expand('~/.vim/bundle/'))
 
-" The sparkup vim script is in a subdirectory of this repo called vim.
-" Pass the path to set the runtimepath properly.
-" Plugin 'rstacruz/sparkup', {'rtp': 'vim/'}
-" scripts from http://vim-scripts.org/vim/scripts.html
-" Plugin 'L9'
-" Plugin 'FuzzyFinder'
-" scripts not on GitHub
-" Plugin 'git://git.wincent.com/command-t.git'
-" git repos on your local machine (i.e. when working on your own plugin)
-" Plugin 'file:///home/gmarik/path/to/plugin'
-" ...
+" Let NeoBundle manage NeoBundle
+" Required:
+NeoBundleFetch 'Shougo/neobundle.vim'
 
-filetype plugin indent on     " required
-" To ignore plugin indent changes, instead use:
-"filetype plugin on
-"
-" Brief help
-" :PluginList          - list configured plugins
-" :PluginInstall(!)    - install (update) plugins
-" :PluginSearch(!) foo - search (or refresh cache first) for foo
-" :PluginClean(!)      - confirm (or auto-approve) removal of unused plugins
-"
-" see :h vundle for more details or wiki for FAQ
-" NOTE: comments after Plugin commands are not allowed.
-" Put your stuff after this lineet nocompatible               " be iMproved
+" My Bundles here:
+" Refer to |:NeoBundle-examples|.
+" Note: You don't set neobundle setting in .gvimrc!
+NeoBundle 'scrooloose/nerdtree'
+NeoBundle 'kien/ctrlp.vim'
+NeoBundle 'Valloric/YouCompleteMe'
+NeoBundle 'marijnh/tern_for_vim'
+NeoBundle 'groenewege/vim-less'
+let g:tern_show_argument_hints = 'on_move'
+NeoBundleLazy 'jelera/vim-javascript-syntax', {'autoload':{'filetypes':['javascript']}}
+call neobundle#end()
+
+" Required:
+filetype plugin indent on
+
+" If there are uninstalled bundles found on startup,
+" this will conveniently prompt you to install them.
+NeoBundleCheck
 
 set autoindent
 set backspace=2
@@ -55,12 +43,14 @@ set expandtab
 set ignorecase
 set incsearch
 set number
-set shiftwidth=4
+set shiftwidth=2
 set smartcase
-set softtabstop=4
-set tabstop=8
+set softtabstop=2
+set tabstop=4
 set wildmenu
 set wildmode=longest,list,full
+set omnifunc=syntaxcomplete#Complete
+syntax on
 
 set mouse=a
 if exists('$TMUX')  " Support resizing in tmux
