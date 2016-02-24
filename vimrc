@@ -24,6 +24,9 @@ NeoBundle 'Valloric/YouCompleteMe'
 NeoBundle 'marijnh/tern_for_vim'
 NeoBundle 'groenewege/vim-less'
 NeoBundle 'rust-lang/rust.vim'
+NeoBundle 'klen/python-mode'
+NeoBundle 'tpope/vim-commentary'
+NeoBundle 'ntpeters/vim-better-whitespace'
 let g:tern_show_argument_hints = 'on_move'
 NeoBundleLazy 'jelera/vim-javascript-syntax', {'autoload':{'filetypes':['javascript']}}
 call neobundle#end()
@@ -44,14 +47,16 @@ set expandtab
 set ignorecase
 set incsearch
 set number
-set shiftwidth=2
+set shiftwidth=4
 set smartcase
-set softtabstop=2
-set tabstop=4
+set softtabstop=4
 set wildmenu
 set wildmode=longest,list,full
 set omnifunc=syntaxcomplete#Complete
 syntax on
+set wildignore+=*.pyc
+set undofile
+set undodir=~/.vimundo
 
 set mouse=a
 if exists('$TMUX')  " Support resizing in tmux
@@ -69,9 +74,13 @@ nmap <leader>d :NERDTreeToggle<CR>
 nmap <leader>f :NERDTreeFind<CR>
 nmap <leader>t :CtrlP<CR>
 nmap <leader>T :CtrlPClearCache<CR>:CtrlP<CR>
+nmap <leader><Space> :StripWhitespace<CR>
 
 let g:ctrlp_match_window = 'order:ttb,max:20'
 let g:NERDSpaceDelims=1
 let g:gitgutter_enabled = 0
+let g:ctrlp_max_files=0
+let g:ctrlp_max_depth=40
+let g:ctrlp_custom_ignore = 'node_modules\|DS_Store\|git|*.pyc'
 
 autocmd VimResized * :wincmd =
