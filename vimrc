@@ -28,7 +28,6 @@ NeoBundle 'klen/python-mode'
 NeoBundle 'tpope/vim-commentary'
 NeoBundle 'ntpeters/vim-better-whitespace'
 let g:tern_show_argument_hints = 'on_move'
-let g:ctrlp_custom_ignore = 'node_modules\|DS_Store\|git|client/lib'
 NeoBundleLazy 'jelera/vim-javascript-syntax', {'autoload':{'filetypes':['javascript']}}
 call neobundle#end()
 
@@ -82,6 +81,6 @@ let g:NERDSpaceDelims=1
 let g:gitgutter_enabled = 0
 let g:ctrlp_max_files=0
 let g:ctrlp_max_depth=40
-let g:ctrlp_custom_ignore = 'node_modules\|DS_Store\|git|*.pyc'
+let g:ctrlp_custom_ignore = 'node_modules\|DS_Store\|git|client/lib|*.pyc'
 
 autocmd VimResized * :wincmd =
