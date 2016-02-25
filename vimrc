@@ -25,6 +25,7 @@ NeoBundle 'marijnh/tern_for_vim'
 NeoBundle 'groenewege/vim-less'
 NeoBundle 'rust-lang/rust.vim'
 let g:tern_show_argument_hints = 'on_move'
+let g:ctrlp_custom_ignore = 'node_modules\|DS_Store\|git|client/lib'
 NeoBundleLazy 'jelera/vim-javascript-syntax', {'autoload':{'filetypes':['javascript']}}
 call neobundle#end()
 
