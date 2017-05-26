@@ -1,8 +1,12 @@
 vim-setup
 =========
+Consult this site for handling packages
+https://github.com/junegunn/vim-plug
+
 
 Run This Before Starting
-curl https://raw.githubusercontent.com/Shougo/neobundle.vim/master/bin/install.sh | sh
+curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
+    https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
 
 Create this directory
 ~/.vimundo

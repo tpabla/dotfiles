@@ -1,55 +1,47 @@
-" Note: Skip initialization for vim-tiny or vim-small.
-if !1 | finish | endif
+" Specify a directory for plugins (for Neovim: ~/.local/share/nvim/plugged)
+call plug#begin('~/.vim/plugged')
 
-if has('vim_starting')
-set nocompatible               " Be iMproved
+" Make sure you use single quotes
 
-" Required:
-set runtimepath+=~/.vim/bundle/neobundle.vim/
-endif
+" Shorthand notation; fetches https://github.com/junegunn/vim-easy-align
+Plug 'junegunn/vim-easy-align'
 
-" Required:
-call neobundle#begin(expand('~/.vim/bundle/'))
+" Any valid git URL is allowed
+Plug 'https://github.com/junegunn/vim-github-dashboard.git'
 
-" Let NeoBundle manage NeoBundle
-" Required:
-NeoBundleFetch 'Shougo/neobundle.vim'
+Plug 'scrooloose/nerdtree'
+Plug 'kien/ctrlp.vim'
+Plug 'Valloric/YouCompleteMe'
+Plug 'marijnh/tern_for_vim'
+Plug 'groenewege/vim-less'
+Plug 'rust-lang/rust.vim'
+Plug 'klen/python-mode'
+Plug 'tpope/vim-commentary'
+Plug 'ntpeters/vim-better-whitespace'
+Plug 'Lokaltog/vim-powerline'
+Plug 'jmcantrell/vim-virtualenv'
 
-" My Bundles here:
-" Refer to |:NeoBundle-examples|.
-" Note: You don't set neobundle setting in .gvimrc!
-NeoBundle 'scrooloose/nerdtree'
-NeoBundle 'kien/ctrlp.vim'
-NeoBundle 'Valloric/YouCompleteMe'
-NeoBundle 'marijnh/tern_for_vim'
-NeoBundle 'groenewege/vim-less'
-NeoBundle 'rust-lang/rust.vim'
-NeoBundle 'klen/python-mode'
-NeoBundle 'tpope/vim-commentary'
-NeoBundle 'ntpeters/vim-better-whitespace'
+call plug#end()
+
 let g:tern_show_argument_hints = 'on_move'
-NeoBundleLazy 'jelera/vim-javascript-syntax', {'autoload':{'filetypes':['javascript']}}
-call neobundle#end()
 
 " Required:
 filetype plugin indent on
 
-" If there are uninstalled bundles found on startup,
-" this will conveniently prompt you to install them.
-NeoBundleCheck
-
 set autoindent
 set backspace=2
-set clipboard=unnamed
+if $TMUX == ''
+    set clipboard+=unnamed
+endif
 set noswapfile
 set encoding=utf-8
 set expandtab
 set ignorecase
 set incsearch
 set number
-set shiftwidth=4
+set shiftwidth=2
 set smartcase
-set softtabstop=4
+set softtabstop=2
 set wildmenu
 set wildmode=longest,list,full
 set omnifunc=syntaxcomplete#Complete
@@ -57,6 +49,7 @@ syntax on
 set wildignore+=*.pyc
 set undofile
 set undodir=~/.vimundo
+set confirm
 
 set mouse=a
 if exists('$TMUX')  " Support resizing in tmux
@@ -82,5 +75,4 @@ let g:gitgutter_enabled = 0
 let g:ctrlp_max_files=0
 let g:ctrlp_max_depth=40
 let g:ctrlp_custom_ignore = 'node_modules\|DS_Store\|git|client/lib|*.pyc'
-
-autocmd VimResized * :wincmd =
+let g:pymode_rope_lookup_project = 0
