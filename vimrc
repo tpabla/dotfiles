@@ -20,6 +20,8 @@ Plug 'tpope/vim-commentary'
 Plug 'ntpeters/vim-better-whitespace'
 Plug 'Lokaltog/vim-powerline'
 Plug 'jmcantrell/vim-virtualenv'
+Plug 'tpope/vim-surround'
+Plug 'fatih/vim-go'
 
 call plug#end()
 
@@ -50,6 +52,7 @@ set wildignore+=*.pyc
 set undofile
 set undodir=~/.vimundo
 set confirm
+filetype plugin on
 
 set mouse=a
 if exists('$TMUX')  " Support resizing in tmux
@@ -76,3 +79,14 @@ let g:ctrlp_max_files=0
 let g:ctrlp_max_depth=40
 let g:ctrlp_custom_ignore = 'node_modules\|DS_Store\|git|client/lib|*.pyc'
 let g:pymode_rope_lookup_project = 0
+let g:pymode_rope = 0
+
+" Go Stuff
+let g:go_disable_autoinstall = 0
+
+" Highlight
+let g:go_highlight_functions = 1
+let g:go_highlight_methods = 1
+let g:go_highlight_structs = 1
+let g:go_highlight_operators = 1
+let g:go_highlight_build_constraints = 1
