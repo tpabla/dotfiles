@@ -32,9 +32,7 @@ filetype plugin indent on
 
 set autoindent
 set backspace=2
-if $TMUX == ''
-    set clipboard+=unnamed
-endif
+set clipboard=unnamed " copy to the system clipboard
 set noswapfile
 set encoding=utf-8
 set expandtab
@@ -55,6 +53,12 @@ set confirm
 filetype plugin on
 
 set mouse=a
+if has("mouse_sgr")
+    set ttymouse=sgr
+else
+    set ttymouse=xterm2
+end
+
 if exists('$TMUX')  " Support resizing in tmux
   set ttymouse=xterm2
 endif
@@ -90,3 +94,5 @@ let g:go_highlight_methods = 1
 let g:go_highlight_structs = 1
 let g:go_highlight_operators = 1
 let g:go_highlight_build_constraints = 1
+
+inoremap ;; <Esc>
