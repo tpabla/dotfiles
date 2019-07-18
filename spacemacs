@@ -32,6 +32,7 @@ values."
    ;; List of configuration layers to load.
    dotspacemacs-configuration-layers
    '(
+     csv
      javascript
      yaml
      html
@@ -233,7 +234,7 @@ values."
    dotspacemacs-fullscreen-at-startup nil
    ;; If non nil `spacemacs/toggle-fullscreen' will not use native fullscreen.
    ;; Use to disable fullscreen animations in OSX. (default nil)
-   dotspacemacs-fullscreen-use-non-native nil
+   dotspacemacs-fullscreen-use-non-native 1
    ;; If non nil the frame is maximized when Emacs starts up.
    ;; Takes effect only if `dotspacemacs-fullscreen-at-startup' is nil.
    ;; (default nil) (Emacs 24.4+ only)
@@ -334,7 +335,7 @@ you should place your code here."
                       ;; Also handle undocumented (<active> <inactive>) form.
                       ((numberp (cadr alpha)) (cadr alpha)))
                 100)
-           '(85 . 50) '(100 . 100)))))
+           '(70 . 50) '(100 . 100)))))
   (global-set-key (kbd "C-c t") 'toggle-transparency)
   (setq ns-use-native-fullscreen nil)
   ;; Set transparency of emacs
@@ -345,6 +346,8 @@ you should place your code here."
   '(all-the-icons-for-buffer
     all-the-icons-for-file
     all-the-icons-for-mode)
+
+  ;; BEGIN ORG_MODE SETTINGS
   (setq org-agenda-files '("~/org_mode/inbox.org"
                            "~/org_mode/gtd.org"
                            "~/org_mode/tickler.org"
@@ -363,10 +366,6 @@ you should place your code here."
   (setq org-todo-keywords '((sequence "TODO(t)" "WAITING(w)" "|" "DONE(d)" "CANCELLED(c)")))
 
   (setq org-directory "~/org_mode")
-  (setq org-mobile-inbox-for-pull "~/org_mode/inbox.org")
-  (setq org-mobile-directory "~/Dropbox/Apps/MobileOrg")
-  (add-hook 'after-init-hook 'org-mobile-pull)
-  (add-hook 'kill-emacs-hook 'org-mobile-push)
 
   (defun org-meta-return* (&optional ignore)
     "context respecting org-insert"
@@ -397,6 +396,65 @@ you should place your code here."
   (evil-define-key 'insert org-mode-map (kbd "RET") #'org-return-indent)
   (evil-define-key 'insert org-mode-map (kbd "<S-return>") #'org-return)
   (global-evil-tabs-mode t)
+
+  ;;org-html-export-to-html
+  (setq org-html-preamble-format
+        '(("en"
+           "<h1 class=\"title\">%t</h1>
+          <p class=\"subtitle\">%d By: %a</p>")))
+
+  ;; lets make org beautiful
+  (setq org-hide-emphasis-markers t)
+  (font-lock-add-keywords 'org-mode
+                          '(("^ *\\([-]\\) "
+                             (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
+
+  (use-package org-bullets
+    :config
+    (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
+
+  (let* ((variable-tuple
+        (cond ((x-list-fonts "Source Sans Pro") '(:font "Source Sans Pro"))
+              ((x-list-fonts "Lucida Grande")   '(:font "Lucida Grande"))
+              ((x-list-fonts "Verdana")         '(:font "Verdana"))
+              ((x-family-fonts "Sans Serif")    '(:family "Sans Serif"))
+              (nil (warn "Cannot find a Sans Serif Font.  Install Source Sans Pro."))))
+       (base-font-color     (face-foreground 'default nil 'default))
+       (headline           `(:inherit default :weight bold :foreground ,base-font-color)))
+
+  (custom-theme-set-faces
+   'user
+   `(org-level-8 ((t (,@headline ,@variable-tuple))))
+   `(org-level-7 ((t (,@headline ,@variable-tuple))))
+   `(org-level-6 ((t (,@headline ,@variable-tuple))))
+   `(org-level-5 ((t (,@headline ,@variable-tuple))))
+   `(org-level-4 ((t (,@headline ,@variable-tuple :height 1.1))))
+   `(org-level-3 ((t (,@headline ,@variable-tuple :height 1.25))))
+   `(org-level-2 ((t (,@headline ,@variable-tuple :height 1.5))))
+   `(org-level-1 ((t (,@headline ,@variable-tuple :height 1.75))))
+   `(org-document-title ((t (,@headline ,@variable-tuple :height 2.0 :underline nil))))))
+
+  (custom-theme-set-faces
+   'user
+   '(variable-pitch ((t (:family "Source Sans Pro" :height 180 :weight light))))
+   '(fixed-pitch ((t ( :family "Inconsolata" :slant normal :weight normal :height 1.0 :width normal)))))
+  (add-hook 'org-mode-hook 'variable-pitch-mode)
+  (add-hook 'org-mode-hook 'visual-line-mode)
+  (custom-theme-set-faces
+   'user
+   '(org-block                 ((t (:inherit fixed-pitch))))
+   '(org-document-info         ((t (:foreground "dark orange"))))
+   '(org-document-info-keyword ((t (:inherit (shadow fixed-pitch)))))
+   '(org-link                  ((t (:foreground "royal blue" :underline t))))
+   '(org-meta-line             ((t (:inherit (font-lock-comment-face fixed-pitch)))))
+   '(org-property-value        ((t (:inherit fixed-pitch))) t)
+   '(org-special-keyword       ((t (:inherit (font-lock-comment-face fixed-pitch)))))
+   '(org-tag                   ((t (:inherit (shadow fixed-pitch) :weight bold :height 0.8))))
+   '(org-verbatim              ((t (:inherit (shadow fixed-pitch)))))
+   '(org-indent                ((t (:inherit (org-hide fixed-pitch))))))
+
+
+  ;; END ORG_MODE SETTINGS
 
   ;; (evil-ex-define-cmd "q[uit]" 'evil-quit)
   (evil-define-command evil-tab-sensitive-quit (&optional bang)
@@ -430,6 +488,18 @@ you should place your code here."
   (global-undo-tree-mode)
   (setq undo-tree-auto-save-history t)
   (setq undo-tree-history-directory-alist '(("." . "~/.emacs.d/undo")))
+  (setq backup-directory-alist `(("." . "~/.emacs.d/saves")))
+  (setq backup-by-copying t)
+  (setq delete-old-versions t
+        kept-new-versions 6
+        kept-old-versions 2
+        version-control t)
+  (setq create-lockfiles nil)
+  ;; to setup tabs
+  (setq c-basic-indent 2)
+  (setq tab-width 4)
+  (setq indent-tabs-mode nil)
+
 )
 
 ;; Do not write anything past this comment. This is where Emacs will
@@ -449,7 +519,7 @@ you should place your code here."
  '(evil-want-Y-yank-to-eol nil)
  '(package-selected-packages
    (quote
-    (web-beautify livid-mode skewer-mode simple-httpd json-mode json-snatcher json-reformat js2-refactor multiple-cursors js2-mode js-doc company-tern dash-functional tern coffee-mode elm-mode reformatter evil-tabs elscreen perspective all-the-icons memoize yaml-mode web-mode tagedit slim-mode scss-mode sass-mode pug-mode helm-css-scss haml-mode emmet-mode company-web web-completion-data key-chord unfill mwim markdown-mode gitignore-mode pos-tip flycheck magit magit-popup git-commit with-editor company yasnippet auto-complete org-category-capture alert log4e gntp rvm ruby-tools ruby-test-mode rubocop rspec-mode robe rbenv rake minitest chruby bundler inf-ruby sql-indent ws-butler winum volatile-highlights vi-tilde-fringe uuidgen toc-org spaceline powerline restart-emacs rainbow-delimiters popwin persp-mode paradox spinner org-bullets open-junk-file move-text lorem-ipsum linum-relative link-hint indent-guide hungry-delete hl-todo highlight-parentheses highlight-numbers parent-mode highlight-indentation google-translate golden-ratio flx-ido fill-column-indicator fancy-battery eyebrowse expand-region evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-search-highlight-persist highlight evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state smartparens evil-indent-plus evil-iedit-state iedit evil-exchange evil-ediff evil-args evil-anzu anzu eval-sexp-fu dumb-jump f define-word column-enforce-mode clean-aindent-mode auto-highlight-symbol aggressive-indent adaptive-wrap ace-link xterm-color which-key use-package smeargle shell-pop pcre2el orgit org-projectile org-present org-pomodoro org-mime org-download neotree multi-term mmm-mode markdown-toc magit-gitflow macrostep hydra htmlize helm-themes helm-swoop helm-projectile helm-mode-manager helm-make helm-gitignore helm-flx helm-descbinds helm-company helm-c-yasnippet helm-ag gnuplot gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link gh-md fuzzy flycheck-pos-tip exec-path-from-shell evil-visualstar evil-magit evil-escape eshell-z eshell-prompt-extras esh-help elisp-slime-nav diminish company-statistics bind-map auto-yasnippet auto-compile ace-window ace-jump-helm-line ac-ispell))))
+    (csv-mode web-beautify livid-mode skewer-mode simple-httpd json-mode json-snatcher json-reformat js2-refactor multiple-cursors js2-mode js-doc company-tern dash-functional tern coffee-mode elm-mode reformatter evil-tabs elscreen perspective all-the-icons memoize yaml-mode web-mode tagedit slim-mode scss-mode sass-mode pug-mode helm-css-scss haml-mode emmet-mode company-web web-completion-data key-chord unfill mwim markdown-mode gitignore-mode pos-tip flycheck magit magit-popup git-commit with-editor company yasnippet auto-complete org-category-capture alert log4e gntp rvm ruby-tools ruby-test-mode rubocop rspec-mode robe rbenv rake minitest chruby bundler inf-ruby sql-indent ws-butler winum volatile-highlights vi-tilde-fringe uuidgen toc-org spaceline powerline restart-emacs rainbow-delimiters popwin persp-mode paradox spinner org-bullets open-junk-file move-text lorem-ipsum linum-relative link-hint indent-guide hungry-delete hl-todo highlight-parentheses highlight-numbers parent-mode highlight-indentation google-translate golden-ratio flx-ido fill-column-indicator fancy-battery eyebrowse expand-region evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-search-highlight-persist highlight evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state smartparens evil-indent-plus evil-iedit-state iedit evil-exchange evil-ediff evil-args evil-anzu anzu eval-sexp-fu dumb-jump f define-word column-enforce-mode clean-aindent-mode auto-highlight-symbol aggressive-indent adaptive-wrap ace-link xterm-color which-key use-package smeargle shell-pop pcre2el orgit org-projectile org-present org-pomodoro org-mime org-download neotree multi-term mmm-mode markdown-toc magit-gitflow macrostep hydra htmlize helm-themes helm-swoop helm-projectile helm-mode-manager helm-make helm-gitignore helm-flx helm-descbinds helm-company helm-c-yasnippet helm-ag gnuplot gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link gh-md fuzzy flycheck-pos-tip exec-path-from-shell evil-visualstar evil-magit evil-escape eshell-z eshell-prompt-extras esh-help elisp-slime-nav diminish company-statistics bind-map auto-yasnippet auto-compile ace-window ace-jump-helm-line ac-ispell))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
