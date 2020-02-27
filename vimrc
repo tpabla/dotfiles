@@ -11,7 +11,6 @@ Plug 'https://github.com/junegunn/vim-github-dashboard.git'
 
 Plug 'scrooloose/nerdtree'
 Plug 'kien/ctrlp.vim'
-Plug 'Valloric/YouCompleteMe'
 Plug 'marijnh/tern_for_vim'
 Plug 'groenewege/vim-less'
 Plug 'rust-lang/rust.vim'
@@ -22,13 +21,20 @@ Plug 'Lokaltog/vim-powerline'
 Plug 'jmcantrell/vim-virtualenv'
 Plug 'tpope/vim-surround'
 Plug 'fatih/vim-go'
+Plug 'ryanoasis/vim-devicons'
+Plug 'vim-airline/vim-airline'
+Plug 'vim-airline/vim-airline-themes'
+Plug 'dracula/vim', { 'as': 'dracula' }
+Plug 'haya14busa/incsearch.vim'
 
 call plug#end()
+color dracula
 
 let g:tern_show_argument_hints = 'on_move'
 
 " Required:
 filetype plugin indent on
+
 
 set autoindent
 set backspace=2
@@ -94,5 +100,18 @@ let g:go_highlight_methods = 1
 let g:go_highlight_structs = 1
 let g:go_highlight_operators = 1
 let g:go_highlight_build_constraints = 1
+
+let g:airline_powerline_fonts = 1
+
+" incsearch settings
+" :h g:incsearch#auto_nohlsearch
+set hlsearch
+let g:incsearch#auto_nohlsearch = 1
+map n  <Plug>(incsearch-nohl-n)
+map N  <Plug>(incsearch-nohl-N)
+map *  <Plug>(incsearch-nohl-*)
+map #  <Plug>(incsearch-nohl-#)
+map g* <Plug>(incsearch-nohl-g*)
+map g# <Plug>(incsearch-nohl-g#)"
 
 inoremap ;; <Esc>
