@@ -83,9 +83,12 @@ nmap <leader>t :CtrlP<CR>
 nmap <leader>T :CtrlPClearCache<CR>:CtrlP<CR>
 nmap <leader><Space> :StripWhitespace<CR>
 
-"let g:python_host_prog = expand('/opt/python3.8/bin/python3')
-"let g:python3_host_prog = expand('/opt/python3.8/bin/python3')
-"let g:python2_host_prog = expand('/opt/python2.7/bin/python2.7')
+let hostname = substitute(system('hostname'), '\n', '', '')
+if hostname == "ep-vm-aws.taran.devvm.easypo.net"
+  let g:python_host_prog = expand('/opt/python3.8/bin/python3')
+  let g:python3_host_prog = expand('/opt/python3.8/bin/python3')
+  let g:python2_host_prog = expand('/opt/python2.7/bin/python2.7')
+end
 
 let g:ctrlp_match_window = 'order:ttb,max:20'
 let g:NERDSpaceDelims=1
