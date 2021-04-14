@@ -11,7 +11,6 @@ Plug 'https://github.com/junegunn/vim-github-dashboard.git'
 
 Plug 'scrooloose/nerdtree'
 Plug 'kien/ctrlp.vim'
-Plug 'marijnh/tern_for_vim'
 Plug 'groenewege/vim-less'
 Plug 'rust-lang/rust.vim'
 Plug 'klen/python-mode'
@@ -31,9 +30,11 @@ Plug 'Shougo/neocomplete.vim'
 Plug 'tell-k/vim-autopep8'
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
 Plug 'drewtempelmeyer/palenight.vim'
-Plug 'ghifarit53/tokyonight-vim'
-
-
+Plug 'tpope/vim-commentary'
+Plug 'othree/yajs.vim'
+Plug 'mxw/vim-jsx'
+Plug 'ntpeters/vim-better-whitespace'
+Plug 'MaxMEllon/vim-jsx-pretty'
 
 call plug#end()
 
@@ -126,6 +127,10 @@ map *  <Plug>(incsearch-nohl-*)
 map #  <Plug>(incsearch-nohl-#)
 map g* <Plug>(incsearch-nohl-g*)
 map g# <Plug>(incsearch-nohl-g#)"
+
+" remove whitespace on save
+let g:better_whitespace_enabled=1
+let g:strip_whitespace_on_save=1
 
 inoremap ;; <Esc>
 

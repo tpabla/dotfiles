@@ -35,19 +35,18 @@ Plug 'drewtempelmeyer/palenight.vim'
 Plug 'ghifarit53/tokyonight-vim'
 Plug 'sbdchd/neoformat'
 
-call plug#end()
+" Javascript and ReactPlug 'pangloss/vim-javascript'
+Plug 'leafgarland/typescript-vim'
+Plug 'peitalin/vim-jsx-typescript'
+Plug 'styled-components/vim-styled-components', { 'branch': 'main' }
+Plug 'jparise/vim-graphql'
 
-colorscheme deus
+call plug#end()
 
 let g:tern_show_argument_hints = 'on_move'
 
-" Transparent
-let g:dracula_colorterm = 0
-hi Normal guibg=NONE ctermbg=NONE
-
 " Required:
 filetype plugin indent on
-
 
 set autoindent
 set backspace=2
@@ -84,10 +83,9 @@ nmap <leader>t :CtrlP<CR>
 nmap <leader>T :CtrlPClearCache<CR>:CtrlP<CR>
 nmap <leader><Space> :StripWhitespace<CR>
 
-let g:python_host_prog = expand('/opt/python3.8/bin/python3')
-let g:python3_host_prog = expand('/opt/python3.8/bin/python3')
-let g:python2_host_prog = expand('/opt/python2.7/bin/python2.7')
-"
+"let g:python_host_prog = expand('/opt/python3.8/bin/python3')
+"let g:python3_host_prog = expand('/opt/python3.8/bin/python3')
+"let g:python2_host_prog = expand('/opt/python2.7/bin/python2.7')
 
 let g:ctrlp_match_window = 'order:ttb,max:20'
 let g:NERDSpaceDelims=1
@@ -125,7 +123,10 @@ map g* <Plug>(incsearch-nohl-g*)
 map g# <Plug>(incsearch-nohl-g#)"
 
 " Coc
-let g:coc_global_extensions = ['coc-solargraph']
+let g:coc_global_extensions = [
+      \'coc-solargraph',
+      \'coc-tsserver'
+      \]
 
 inoremap <silent><expr> <TAB>
       \ pumvisible() ? "\<C-n>" :
@@ -153,3 +154,6 @@ let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
 set background=dark    " Setting dark mode
 colorscheme deus
 let g:deus_termcolors=256
+" Transparent background
+hi Normal guibg=NONE ctermbg=NONE
+
