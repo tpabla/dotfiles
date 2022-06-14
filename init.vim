@@ -10,7 +10,7 @@ Plug 'haya14busa/incsearch.vim'
 "Plug 'tpope/vim-rails'
 "Plug 'tell-k/vim-autopep8'
 Plug 'drewtempelmeyer/palenight.vim'
-
+Plug 'christoomey/vim-tmux-navigator'
 
 "Built in common lspconfigs
 Plug 'neovim/nvim-lspconfig'
