@@ -3,22 +3,27 @@ call plug#begin('~/.vim/plugged')
 
 " Make sure you use single quotes
 
+Plug 'scrooloose/nerdtree'
+Plug 'kien/ctrlp.vim'
+Plug 'rust-lang/rust.vim'
+Plug 'klen/python-mode'
 Plug 'tpope/vim-commentary'
 Plug 'ntpeters/vim-better-whitespace'
+Plug 'jmcantrell/vim-virtualenv'
 Plug 'tpope/vim-surround'
+Plug 'fatih/vim-go'
+Plug 'ryanoasis/vim-devicons'
+Plug 'vim-airline/vim-airline'
+Plug 'vim-airline/vim-airline-themes'
+" Plug 'arcticicestudio/nord-vim'
+Plug 'ajmwagar/vim-deus'
+Plug 'dracula/vim', { 'as': 'dracula' }
 Plug 'haya14busa/incsearch.vim'
-"Plug 'tpope/vim-rails'
-"Plug 'tell-k/vim-autopep8'
+Plug 'tpope/vim-rails'
+Plug 'tell-k/vim-autopep8'
 Plug 'drewtempelmeyer/palenight.vim'
-
-
-"Built in common lspconfigs
-Plug 'neovim/nvim-lspconfig'
-
-" Telescope for fzf
-Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
-Plug 'nvim-lua/plenary.nvim'
-Plug 'nvim-telescope/telescope.nvim'
+Plug 'ghifarit53/tokyonight-vim'
+Plug 'sbdchd/neoformat'
 
 Plug 'tpabla/markdown-preview.nvim', { 'do': { -> mkdp#util#install() }, 'for': ['markdown', 'vim-plug']}
 
@@ -26,6 +31,8 @@ Plug 'tpabla/markdown-preview.nvim', { 'do': { -> mkdp#util#install() }, 'for': 
 Plug 'dhruvasagar/vim-table-mode'
 
 call plug#end()
+
+let g:tern_show_argument_hints = 'on_move'
 
 " Required:
 filetype plugin indent on
@@ -71,7 +78,7 @@ map <C-j> <C-w>j
 map <C-k> <C-w>k
 map <C-l> <C-w>l
 nmap <leader>b :CtrlPBuffer<CR>
-"nmap <leader>d :NERDTreeToggle<CR>
+nmap <leader>d :NERDTreeToggle<CR>
 nmap <leader>t :CtrlP<CR>
 nmap <leader>T :CtrlPClearCache<CR>:CtrlP<CR>
 nmap <leader><Space> :StripWhitespace<CR>
@@ -91,6 +98,8 @@ let g:gitgutter_enabled = 0
 let g:ctrlp_max_files=0
 let g:ctrlp_max_depth=40
 let g:ctrlp_custom_ignore = 'node_modules\|DS_Store\|git|client/lib|*.pyc'
+let g:pymode_rope_lookup_project = 0
+let g:pymode_rope = 0
 
 " Go Stuff
 let g:go_disable_autoinstall = 0
@@ -104,6 +113,9 @@ let g:go_highlight_build_constraints = 1
 
 let g:airline_powerline_fonts = 1
 
+" Neocomplete
+" let g:neocomplete#enable_at_startup=1
+
 " incsearch settings
 " :h g:incsearch#auto_nohlsearch
 set hlsearch
@@ -115,16 +127,39 @@ map #  <Plug>(incsearch-nohl-#)
 map g* <Plug>(incsearch-nohl-g*)
 map g# <Plug>(incsearch-nohl-g#)"
 
+" Coc
+let g:coc_global_extensions = [
+      \'coc-solargraph',
+      \'coc-tsserver'
+      \]
+
+inoremap <silent><expr> <TAB>
+      \ pumvisible() ? "\<C-n>" :
+      \ <SID>check_back_space() ? "\<TAB>" :
+      \ coc#refresh()
+inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
+
+function! s:check_back_space() abort
+  let col = col('.') - 1
+  return !col || getline('.')[col - 1]  =~# '\s'
+endfunction
+
+nmap <silent> gd <Plug>(coc-definition)
+
 " Esc
 inoremap ;; <Esc>
 
+" Deus
+set t_Co=256
+set termguicolors
+
+let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
+let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
+
+set background=dark    " Setting dark mode
+colorscheme palenight
+let g:deus_termcolors=256
 " Transparent background
 hi Normal guibg=NONE ctermbg=NONE
 
 autocmd FileType text,markdown,tex setlocal textwidth=80
-
-" Telescope
-nnoremap <leader>ff <cmd>lua require('telescope.builtin').find_files()<cr>
-nnoremap <leader>fg <cmd>lua require('telescope.builtin').live_grep()<cr>
-nnoremap <leader>fb <cmd>lua require('telescope.builtin').buffers()<cr>
-nnoremap <leader>fh <cmd>lua require('telescope.builtin').help_tags()<cr>
