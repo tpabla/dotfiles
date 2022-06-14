@@ -12,3 +12,7 @@ curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
 
 Create this directory
 ~/.vimundo
+
+```
+git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
+```
