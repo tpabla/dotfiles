@@ -5,14 +5,10 @@ call plug#begin('~/.vim/plugged')
 Plug 'tpope/vim-commentary'
 Plug 'ntpeters/vim-better-whitespace'
 Plug 'tpope/vim-surround'
-"Plug 'tpope/vim-rails'
-"Plug 'tell-k/vim-autopep8'
 Plug 'christoomey/vim-tmux-navigator'
 Plug 'scrooloose/nerdtree'
 Plug 'dracula/vim', { 'as': 'dracula' }
 Plug 'ryanoasis/vim-devicons'
-
-
 
 "Built in common lspconfigs
 Plug 'neovim/nvim-lspconfig'

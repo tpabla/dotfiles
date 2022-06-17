@@ -26,10 +26,33 @@ NeovimConfig
 * Plug 'tpope/vim-surround'
   * Great for select and changing any symbols surrounding test, eg: Changing
   single quotes to double quotes would be a command like this `cs'"`
-* Plug 'haya14busa/incsearch.vim'
+* Plug 'christoomey/vim-tmux-navigator'
+  * Allows for easy navigation in tmux between vim panes, and tmux panes.
+* Plug 'tpabla/markdown-preview.nvim', { 'do': { -> mkdp#util#install() }, 'for': ['markdown', 'vim-plug']}
+  * A fork off a popular markdown previewing repository.  I only forked this to
+  enable previewing of the current version mermaidjs syntax.
+* Plug 'dhruvasagar/vim-table-mode'
+  * Convenience plugin for working with tables.
 
 ### IDE Features
 * [NerdTree](https://github.com/preservim/nerdtree)
   * This is a great file explorer, give a more IDE like feelings to vim.
+* Plug 'dracula/vim', { 'as': 'dracula' }
+  * Color scheme.
+* Plug 'ryanoasis/vim-devicons'
+  * Makes files in nerdtree look pretty.
+* LSP Plugins
+  * Plug 'neovim/nvim-lspconfig'
+  * Plug 'hrsh7th/cmp-nvim-lsp'
+  * Plug 'hrsh7th/cmp-buffer'
+  * Plug 'hrsh7th/cmp-path'
+  * Plug 'hrsh7th/cmp-cmdline'
+  * Plug 'hrsh7th/nvim-cmp'
+* File finder/grepper plugins
+  * Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
+  * Plug 'nvim-lua/plenary.nvim'
+  * Plug 'nvim-telescope/telescope.nvim'
+
+
 
 ### Language Server Protocol (LSP)
