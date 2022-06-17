@@ -2,11 +2,9 @@
 call plug#begin('~/.vim/plugged')
 
 " Make sure you use single quotes
-
 Plug 'tpope/vim-commentary'
 Plug 'ntpeters/vim-better-whitespace'
 Plug 'tpope/vim-surround'
-Plug 'haya14busa/incsearch.vim'
 "Plug 'tpope/vim-rails'
 "Plug 'tell-k/vim-autopep8'
 Plug 'christoomey/vim-tmux-navigator'
@@ -64,13 +62,6 @@ filetype plugin on
 
 " incsearch
 set hlsearch
-let g:incsearch#auto_nohlsearch = 1
-map n  <Plug>(incsearch-nohl-n)
-map N  <Plug>(incsearch-nohl-N)
-map *  <Plug>(incsearch-nohl-*)
-map #  <Plug>(incsearch-nohl-#)
-map g* <Plug>(incsearch-nohl-g*)
-map g# <Plug>(incsearch-nohl-g#)
 
 " airline
 let g:airline#extensions#tabline#enabled = 1
@@ -109,17 +100,6 @@ let g:go_highlight_operators = 1
 let g:go_highlight_build_constraints = 1
 
 let g:airline_powerline_fonts = 1
-
-" incsearch settings
-" :h g:incsearch#auto_nohlsearch
-set hlsearch
-let g:incsearch#auto_nohlsearch = 1
-map n  <Plug>(incsearch-nohl-n)
-map N  <Plug>(incsearch-nohl-N)
-map *  <Plug>(incsearch-nohl-*)
-map #  <Plug>(incsearch-nohl-#)
-map g* <Plug>(incsearch-nohl-g*)
-map g# <Plug>(incsearch-nohl-g#)"
 
 " Esc
 inoremap ;; <Esc>
