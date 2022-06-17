@@ -1,5 +1,8 @@
-vim-setup
+dotfiles
 =========
+
+vim
+===
 Consult this site for handling packages
 https://github.com/junegunn/vim-plug
 
@@ -13,6 +16,8 @@ curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
 Create this directory
 ~/.vimundo
 
+tmux
+===
 ```
 git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
 ```
