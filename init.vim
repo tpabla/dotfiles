@@ -28,6 +28,9 @@ Plug 'tpabla/markdown-preview.nvim', { 'do': { -> mkdp#util#install() }, 'for': 
 " Vim Table Mode
 Plug 'dhruvasagar/vim-table-mode'
 
+" Useful for EP phabricator integration
+Plug 'lanej/vim-phabricator'
+
 call plug#end()
 
 colorscheme dracula
