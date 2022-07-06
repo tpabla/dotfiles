@@ -31,6 +31,10 @@ Plug 'dhruvasagar/vim-table-mode'
 " Useful for EP phabricator integration
 Plug 'lanej/vim-phabricator'
 
+" Fun Stuff
+" Pomodoro
+Plug 'tricktux/pomodoro.vim'
+
 call plug#end()
 
 colorscheme dracula
