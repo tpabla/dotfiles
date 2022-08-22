@@ -9,6 +9,9 @@ Plug 'christoomey/vim-tmux-navigator'
 Plug 'scrooloose/nerdtree'
 Plug 'dracula/vim', { 'as': 'dracula' }
 Plug 'ryanoasis/vim-devicons'
+Plug 'tpope/vim-fugitive'
+Plug 'airblade/vim-gitgutter'
+
 
 "Built in common lspconfigs
 Plug 'neovim/nvim-lspconfig'
@@ -121,6 +124,9 @@ nnoremap <leader>fh <cmd>lua require('telescope.builtin').help_tags()<cr>
 
 let asyncomplete_auto_completeopt = 0
 set completeopt=menu,menuone,noinsert,noselect,preview
+
+" EasyPost Phabricator 
+let g:phabricator_hosts = ["phab.easypo.net"]
 
 
 
