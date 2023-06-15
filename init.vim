@@ -11,6 +11,7 @@ Plug 'dracula/vim', { 'as': 'dracula' }
 Plug 'ryanoasis/vim-devicons'
 Plug 'tpope/vim-fugitive'
 Plug 'airblade/vim-gitgutter'
+Plug 'junegunn/vim-easy-align'
 
 
 "Built in common lspconfigs
@@ -92,8 +93,9 @@ if hostname == "ep-vm-aws.taran.devvm.easypo.net"
 end
 
 let g:ctrlp_match_window = 'order:ttb,max:20'
-let g:NERDSpaceDelims=1
-let g:gitgutter_enabled = 0
+let g:NERDSpaceDelims = 1
+let g:gitgutter_enabled = 1
+set updatetime=100
 
 " Go Stuff
 let g:go_disable_autoinstall = 0
@@ -116,7 +118,7 @@ hi Normal guibg=NONE ctermbg=NONE
 autocmd FileType text,markdown,tex setlocal textwidth=80
 
 " Telescope
-map <C-p> <cmd>lua require('telescope.builtin').find_files()<cr>
+map      <C-p>      <cmd>lua require('telescope.builtin').find_files()<cr>
 nnoremap <leader>ff <cmd>lua require('telescope.builtin').find_files()<cr>
 nnoremap <leader>fg <cmd>lua require('telescope.builtin').live_grep()<cr>
 nnoremap <leader>fb <cmd>lua require('telescope.builtin').buffers()<cr>
@@ -127,6 +129,10 @@ set completeopt=menu,menuone,noinsert,noselect,preview
 
 " EasyPost Phabricator 
 let g:phabricator_hosts = ["phab.easypo.net"]
+
+" Vim Easy Align
+xmap ga <Plug>(EasyAlign)
+
 
 
 
