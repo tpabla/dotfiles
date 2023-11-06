@@ -1,64 +1,70 @@
-" Specify a directory for plugins (for Neovim: ~/.local/share/nvim/plugged)
-call plug#begin('~/.vim/plugged')
+" Use Packer to manage plugins
+execute 'luafile ' . expand('~/.config/nvim/plugins.lua')
+execute 'luafile ' . expand('~/.config/nvim/set.lua')
 
 " Make sure you use single quotes
-Plug 'tpope/vim-commentary'
-Plug 'ntpeters/vim-better-whitespace'
-Plug 'tpope/vim-surround'
-Plug 'christoomey/vim-tmux-navigator'
-Plug 'scrooloose/nerdtree'
-Plug 'dracula/vim', { 'as': 'dracula' }
-Plug 'ryanoasis/vim-devicons'
-Plug 'tpope/vim-fugitive'
-Plug 'airblade/vim-gitgutter'
-Plug 'junegunn/vim-easy-align'
-
-
-"Built in common lspconfigs
-Plug 'neovim/nvim-lspconfig'
-Plug 'hrsh7th/cmp-nvim-lsp'
-Plug 'hrsh7th/cmp-buffer'
-Plug 'hrsh7th/cmp-path'
-Plug 'hrsh7th/cmp-cmdline'
-Plug 'hrsh7th/nvim-cmp'
-
-" Telescope for fzf
-Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
-Plug 'nvim-lua/plenary.nvim'
-Plug 'nvim-telescope/telescope.nvim'
-
-" Plug 'tpabla/markdown-preview.nvim', { 'do': { -> mkdp#util#install() }, 'for': ['markdown']}
-Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install() }, 'for': ['markdown', 'vim-plug']}
-
-" Vim Table Mode
-Plug 'dhruvasagar/vim-table-mode'
-
-" Useful for EP phabricator integration
-Plug 'lanej/vim-phabricator'
-
-" Fun Stuff
-" Pomodoro
-Plug 'tricktux/pomodoro.vim'
-
-" Copy Paste
-Plug 'ojroques/nvim-osc52'
-
-" GoLang Support
-Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
-
-" Rust Support
-Plug 'simrat39/rust-tools.nvim'
-
-" Neorg
-Plug 'nvim-neorg/neorg' | Plug 'nvim-lua/plenary.nvim'
-
-" Color scheme
-Plug 'rebelot/kanagawa.nvim'
-
-"OpenSCAD
-Plug 'sirtaj/vim-openscad'
-
-call plug#end()
+" Plug 'tpope/vim-commentary'
+" Plug 'ntpeters/vim-better-whitespace'
+" Plug 'tpope/vim-surround'
+" Plug 'christoomey/vim-tmux-navigator'
+" Plug 'scrooloose/nerdtree'
+" Plug 'dracula/vim', { 'as': 'dracula' }
+" Plug 'ryanoasis/vim-devicons'
+" Plug 'tpope/vim-fugitive'
+" Plug 'airblade/vim-gitgutter'
+" Plug 'junegunn/vim-easy-align'
+"
+"
+" "Built in common lspconfigs
+" Plug 'neovim/nvim-lspconfig'
+" Plug 'hrsh7th/cmp-nvim-lsp'
+" Plug 'hrsh7th/cmp-buffer'
+" Plug 'hrsh7th/cmp-path'
+" Plug 'hrsh7th/cmp-cmdline'
+" Plug 'hrsh7th/nvim-cmp'
+"
+" " Telescope for fzf
+" Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
+" Plug 'nvim-lua/plenary.nvim'
+" Plug 'nvim-telescope/telescope.nvim'
+"
+" " Plug 'tpabla/markdown-preview.nvim', { 'do': { -> mkdp#util#install() }, 'for': ['markdown']}
+" Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install() }, 'for': ['markdown', 'vim-plug']}
+"
+" " Vim Table Mode
+" Plug 'dhruvasagar/vim-table-mode'
+"
+" " Useful for EP phabricator integration
+" Plug 'lanej/vim-phabricator'
+"
+" " Fun Stuff
+" " Pomodoro
+" Plug 'tricktux/pomodoro.vim'
+"
+" " Copy Paste
+" Plug 'ojroques/nvim-osc52'
+"
+" " GoLang Support
+" Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
+"
+" " Rust Support
+" Plug 'simrat39/rust-tools.nvim'
+"
+" " Neorg
+" Plug 'nvim-neorg/neorg' | Plug 'nvim-lua/plenary.nvim'
+"
+" " Color scheme
+" Plug 'rebelot/kanagawa.nvim'
+"
+" "OpenSCAD
+" Plug 'sirtaj/vim-openscad'
+"
+" call plug#end()
+"
+augroup packer_user_config
+  autocmd!
+  autocmd BufWritePost plugins.lua source <afile> | PackerCompile
+augroup end
 
 colorscheme kanagawa
 
@@ -100,6 +106,7 @@ map <C-j> <C-w>j
 map <C-k> <C-w>k
 map <C-l> <C-w>l
 nmap <leader><Space> :StripWhitespace<CR>
+nmap <leader>t :TableModeToggle<CR>
 nmap <leader>p :MarkdownPreview<CR>
 nmap <leader>s :setlocal spell spelllang=en_us<CR>:.
 nmap <leader>d :NERDTreeToggle<CR>
@@ -130,6 +137,11 @@ let g:go_highlight_build_constraints = 1
 
 let g:airline_powerline_fonts = 1
 
+
+"fold defaults
+set foldmethod=indent
+set foldlevelstart=99
+
 " Esc
 inoremap ;; <Esc>
 
@@ -148,7 +160,7 @@ nnoremap <leader>fh <cmd>lua require('telescope.builtin').help_tags()<cr>
 let asyncomplete_auto_completeopt = 0
 set completeopt=menu,menuone,noinsert,noselect,preview
 
-" EasyPost Phabricator 
+" EasyPost Phabricator
 let g:phabricator_hosts = ["phab.easypo.net"]
 
 " Vim Easy Align
