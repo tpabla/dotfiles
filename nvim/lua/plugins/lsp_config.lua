@@ -29,5 +29,9 @@ return {
         end,
         }
     })
+
+    require('lspconfig')['solargraph'].setup {
+        cmd = {"withenv", "vendor/bundle/bundle", "exec", "solargraph", "stdio"},
+    }
     end
 }
