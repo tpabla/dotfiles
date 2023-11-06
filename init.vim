@@ -27,7 +27,8 @@ Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 Plug 'nvim-lua/plenary.nvim'
 Plug 'nvim-telescope/telescope.nvim'
 
-Plug 'tpabla/markdown-preview.nvim', { 'do': { -> mkdp#util#install() }, 'for': ['markdown', 'vim-plug']}
+" Plug 'tpabla/markdown-preview.nvim', { 'do': { -> mkdp#util#install() }, 'for': ['markdown']}
+Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install() }, 'for': ['markdown', 'vim-plug']}
 
 " Vim Table Mode
 Plug 'dhruvasagar/vim-table-mode'
@@ -39,9 +40,27 @@ Plug 'lanej/vim-phabricator'
 " Pomodoro
 Plug 'tricktux/pomodoro.vim'
 
+" Copy Paste
+Plug 'ojroques/nvim-osc52'
+
+" GoLang Support
+Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
+
+" Rust Support
+Plug 'simrat39/rust-tools.nvim'
+
+" Neorg
+Plug 'nvim-neorg/neorg' | Plug 'nvim-lua/plenary.nvim'
+
+" Color scheme
+Plug 'rebelot/kanagawa.nvim'
+
+"OpenSCAD
+Plug 'sirtaj/vim-openscad'
+
 call plug#end()
 
-colorscheme dracula
+colorscheme kanagawa
 
 " Required:
 filetype plugin indent on
@@ -69,6 +88,7 @@ filetype plugin on
 
 " incsearch
 set hlsearch
+nnoremap <CR> :noh<CR><CR>
 
 " airline
 let g:airline#extensions#tabline#enabled = 1
@@ -97,8 +117,9 @@ let g:NERDSpaceDelims = 1
 let g:gitgutter_enabled = 1
 set updatetime=100
 
-" Go Stuff
+" GoLang Stuff
 let g:go_disable_autoinstall = 0
+
 
 " Highlight
 let g:go_highlight_functions = 1
@@ -134,10 +155,39 @@ let g:phabricator_hosts = ["phab.easypo.net"]
 xmap ga <Plug>(EasyAlign)
 
 
-
-
 " LSP CONFIG
 lua << EOF
+
+require'nvim-treesitter.configs'.setup {
+  highlight = {
+    enable = true,
+    -- Setting this to true will run `:h syntax` and tree-sitter at the same time.
+    -- Set this to `true` if you depend on 'syntax' being enabled (like for indentation).
+    -- Using this option may slow down your editor, and you may see some duplicate highlights.
+    -- Instead of true it can also be a list of languages
+    additional_vim_regex_highlighting = false,
+  },
+}
+
+-- Neorg
+require('neorg').setup {
+    load = {
+        ["core.defaults"] = {}, -- Loads default behaviour
+        ["core.norg.concealer"] = {}, -- Adds pretty icons to your documents
+        ["core.norg.dirman"] = { -- Manages Neorg workspaces
+            config = {
+                workspaces = {
+                    gtd = "~/gtd",
+                },
+            },
+        },
+        ["core.keybinds"] = {
+            config = {
+                default_keybinds = true,
+            }
+        },
+    },
+}
 
 -- Mappings.
 -- See `:help vim.diagnostic.*` for documentation on any of the below functions
@@ -236,7 +286,7 @@ end
   })
 
   -- Setup lspconfig.
-  local capabilities = require('cmp_nvim_lsp').update_capabilities(vim.lsp.protocol.make_client_capabilities())
+  local capabilities = require('cmp_nvim_lsp').default_capabilities(vim.lsp.protocol.make_client_capabilities())
   -- Replace <YOUR_LSP_SERVER> with each lsp server you've enabled.
   require('lspconfig')['solargraph'].setup {
     capabilities = capabilities,
@@ -244,4 +294,38 @@ end
     flags = lsp_flags,
     cmd = {"withenv", "vendor/bundle/bundle", "exec", "solargraph", "stdio"},
   }
+  require'lspconfig'.gopls.setup{}
+
+  local rust_opts = {
+    tools = {
+      runnables = {
+        use_telescope = true,
+      },
+      inlay_hints = {
+        auto = true,
+        show_parameter_hints = false,
+        parameter_hints_prefix = "",
+        other_hints_prefix = "",
+      },
+    },
+
+    -- all the opts to send to nvim-lspconfig
+    -- these override the defaults set by rust-tools.nvim
+    -- see https://github.com/neovim/nvim-lspconfig/blob/master/CONFIG.md#rust_analyzer
+    server = {
+      -- on_attach is a callback called when the language server attachs to the buffer
+      on_attach = on_attach,
+      settings = {
+        -- to enable rust-analyzer settings visit:
+        -- https://github.com/rust-analyzer/rust-analyzer/blob/master/docs/user/generated_config.adoc
+        ["rust-analyzer"] = {
+          -- enable clippy on save
+          checkOnSave = {
+            command = "clippy",
+          },
+        },
+      },
+    },
+  }
+  require('rust-tools').setup(rust_opts)
 EOF
