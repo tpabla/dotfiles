@@ -14,7 +14,12 @@ end
 vim.opt.rtp:prepend(lazypath)
 
 require("lazy").setup(
-    "plugins"
+    "plugins",
+    {
+        ui = {
+            border = 'rounded',
+        }
+    }
 )
 
 vim.o.clipboard = 'unnamedplus' -- copy to the system clipboard
@@ -56,9 +61,11 @@ vim.o.smartcase = true
 vim.o.updatetime = 250
 vim.wo.signcolumn = 'yes'
 
--- vim.o.completeo = 'menuone,noselect'
 vim.o.colorcolumn = 80
 
---require('remap')
+-- custom mapping for plugins
+require('remap')
+
+-- custom functions to be added to
 local test = require('functions')
 vim.keymap.set({'n', 'i'}, '<leader>r', test.reload)
