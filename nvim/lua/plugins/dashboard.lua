@@ -33,6 +33,7 @@ return {
      theme = 'hyper',
       config = {
         header = skull_header,
+        footer = {"🌎  HACK THE PLANET!  🌏"},
         week_header = {
          enable = false,
         },
