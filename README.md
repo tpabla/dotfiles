@@ -1,23 +1,20 @@
 dotfiles
 =========
 
-vim
+nvim
 ===
-Consult this site for handling packages
-https://github.com/junegunn/vim-plug
-
-
-Run This Before Starting
-```
-curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
-    https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
-```
-
-Create this directory
-~/.vimundo
+Consult this site for information about the package manager:
+https://github.com/folke/lazy.nvim
 
 tmux
 ===
 ```
 git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
 ```
+
+
+getting started
+================
+Copy or link the nvim directory into `~/.config/nvim`
+
+Copy or link the tmux directory into `~/.config/tmux`
