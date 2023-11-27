@@ -24,7 +24,7 @@ font:
 
 window:
   decorations: buttonless
-  opacity: 1
+  opacity: 0.4
   startup_mode: Windowed
   padding:
     x: 15
