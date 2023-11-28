@@ -29,7 +29,7 @@ return {
         },
         formatting = lsp_zero.cmp_format(),
         mapping = cmp.mapping.preset.insert({
-        ['<C-k>'] = cmp.mapping.complete(),
+        ['<C-y>'] = cmp.mapping.complete(),
         ['<C-u>'] = cmp.mapping.scroll_docs(-4),
         ['<C-d>'] = cmp.mapping.scroll_docs(4),
         ['<C-l>'] = cmp_action.luasnip_jump_forward(),

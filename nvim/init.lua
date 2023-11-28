@@ -1,5 +1,4 @@
 vim.g.mapleader = ","
-
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not vim.loop.fs_stat(lazypath) then
     vim.fn.system({
@@ -28,7 +27,6 @@ vim.o.encoding = 'utf-8'
 vim.o.ignorecase = true
 vim.o.smartcase = true
 vim.o.termguicolors = true
-vim.o.autoindent = true
 vim.o.expandtab = true
 vim.o.shiftwidth = 2
 vim.o.softtabstop = 2
@@ -53,6 +51,7 @@ vim.o.mouse = ''
 
 -- Enable break indent
 vim.o.breakindent = true
+vim.o.cindent = true
 
 -- Case insensitive searching UNLESS /C or capital in search
 vim.o.ignorecase = true
