@@ -29,11 +29,12 @@ return {
         },
         formatting = lsp_zero.cmp_format(),
         mapping = cmp.mapping.preset.insert({
-        ['<C-y>'] = cmp.mapping.complete(),
-        ['<C-u>'] = cmp.mapping.scroll_docs(-4),
-        ['<C-d>'] = cmp.mapping.scroll_docs(4),
-        ['<C-l>'] = cmp_action.luasnip_jump_forward(),
-        ['<C-h>'] = cmp_action.luasnip_jump_backward(),
+          ['<C-y>'] = cmp.mapping.complete(),
+          ['<C-u>'] = cmp.mapping.scroll_docs(-4),
+          ['<C-d>'] = cmp.mapping.scroll_docs(4),
+          ['<C-l>'] = cmp_action.luasnip_jump_forward(),
+          ['<C-h>'] = cmp_action.luasnip_jump_backward(),
+          ["<CR>"] = cmp.mapping.confirm({ select = false }),
         }),
         sources = cmp.config.sources({
           { name = 'nvim_lsp' },
