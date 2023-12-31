@@ -1,2 +1,4 @@
 tmux/plugins
 .DS_Store
+*.err
+*.log

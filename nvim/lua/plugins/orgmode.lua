@@ -8,6 +8,8 @@ return {
   ft = { 'org' },
   event = 'VeryLazy',
   config = function()
+    vim.opt.conceallevel = 2
+    vim.opt.concealcursor = 'nc'
     -- Load treesitter grammar for org
     require('orgmode').setup_ts_grammar()
 
