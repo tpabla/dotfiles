@@ -12,6 +12,11 @@ if not vim.loop.fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(lazypath)
 
+function is_work()
+  local work_env = os.getenv("WORK")
+  return work_env ~= nil
+end
+
 require("lazy").setup(
     "plugins",
     {

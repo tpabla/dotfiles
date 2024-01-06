@@ -1,6 +1,7 @@
 return {
   "jackMort/ChatGPT.nvim",
     event = "VeryLazy",
+    enabled = not is_work(),
     config = function()
       require("chatgpt").setup({
         openai_params = {
