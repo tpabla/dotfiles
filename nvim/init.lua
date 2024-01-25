@@ -40,7 +40,6 @@ vim.cmd[[filetype indent on]]
 vim.o.swapfile = false
 vim.o.undofile = true
 vim.o.backup = false
-vim.o.textwidth=100
 
 -- Set highlight on search
 vim.opt.hlsearch = false
