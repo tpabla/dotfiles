@@ -10,9 +10,6 @@ return {
   config = function()
     vim.opt.conceallevel = 2
     vim.opt.concealcursor = 'nc'
-    -- Load treesitter grammar for org
-    require('orgmode').setup_ts_grammar()
-
     -- Setup treesitter
     require('nvim-treesitter.configs').setup({
       highlight = {

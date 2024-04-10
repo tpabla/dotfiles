@@ -37,14 +37,18 @@ vim.o.encoding = 'utf-8'
 vim.o.ignorecase = true
 vim.o.smartcase = true
 vim.o.termguicolors = true
-vim.o.expandtab = true
-vim.o.shiftwidth = 2
-vim.o.softtabstop = 2
-vim.cmd[[filetype plugin on]]
-vim.cmd[[filetype indent on]]
 vim.o.swapfile = false
 vim.o.undofile = true
 vim.o.backup = false
+vim.cmd('filetype plugin indent on')
+
+-- indentation
+vim.o.tabstop = 2
+vim.o.shiftwidth = 2
+vim.o.expandtab = true
+vim.o.smartindent = true      -- Autoindent new lines
+vim.o.autoindent = true      -- Autoindent new lines
+vim.o.cindent = true          -- Autoindent new lines, smarter? (experimental)
 
 -- Set highlight on search
 vim.opt.hlsearch = false
@@ -57,10 +61,6 @@ vim.o.relativenumber = true
 
 -- Disable mouse mode
 vim.o.mouse = ''
-
--- Enable break indent
-vim.o.breakindent = true
-vim.o.cindent = true
 
 -- Case insensitive searching UNLESS /C or capital in search
 vim.o.ignorecase = true
