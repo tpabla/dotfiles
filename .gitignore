@@ -3,3 +3,4 @@ tmux/plugins
 *.err
 *.log
 nvim/lazy-lock.json
+ep_solargraph.md
