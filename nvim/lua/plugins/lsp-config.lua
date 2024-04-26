@@ -81,5 +81,41 @@ return {
         root_dir = require 'lspconfig'.util.root_pattern('tailwind.config.js', 'tailwind.config.ts', 'postcss.config.js',
           'postcss.config.ts', 'windi.config.ts'),
       }
+
+    -- Here is where you configure the autocompletion settings.
+    lsp_zero.extend_cmp()
+
+    -- And you can configure cmp even more, if you want to.
+    local cmp = require('cmp')
+    local cmp_action = lsp_zero.cmp_action()
+
+    cmp.setup({
+        snippet = {
+          expand = function(args)
+            require('luasnip').lsp_expand(args.body)
+          end,
+        },
+        window = {
+          completion = cmp.config.window.bordered(),
+          documentation = cmp.config.window.bordered(),
+        },
+        formatting = lsp_zero.cmp_format(),
+        mapping = cmp.mapping.preset.insert({
+          ['<C-y>'] = cmp.mapping.complete(),
+          ['<C-u>'] = cmp.mapping.scroll_docs(-4),
+          ['<C-d>'] = cmp.mapping.scroll_docs(4),
+          ['<C-l>'] = cmp_action.luasnip_jump_forward(),
+          ['<C-h>'] = cmp_action.luasnip_jump_backward(),
+          ["<CR>"] = cmp.mapping.confirm({ select = false }),
+        }),
+        sources = cmp.config.sources({
+          { name = 'nvim_lsp' },
+          { name = 'luasnip' },
+          { name = 'orgmode' },
+        }, {
+          { name = 'buffer' },
+        }),
+    })
+
     end
 }
