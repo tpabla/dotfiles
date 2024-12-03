@@ -77,4 +77,4 @@ require('remap')
 
 -- custom functions to be added to
 local functions = require('functions')
--- vim.keymap.set({'n', 'i'}, '<leader>r', functions.reload)
+vim.keymap.set({'n', 'i'}, '<leader>r', functions.reload)

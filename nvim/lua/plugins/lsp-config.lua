@@ -49,7 +49,7 @@ return {
       })
 
       require('lspconfig')['solargraph'].setup {
-        cmd = {"withenv", "vendor/bundle/bundle", "exec", "solargraph", "stdio"},
+        cmd = {"withenv", "~/Projects/easy_post/vendor/bundle/bundle", "exec", "solargraph", "stdio"},
       }
       require 'lspconfig'.tailwindcss.setup {
         capabilities = Capabilities,

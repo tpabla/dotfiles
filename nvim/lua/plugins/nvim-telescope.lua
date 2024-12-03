@@ -9,7 +9,8 @@ return {
         file_ignore_patterns = {
           "cassettes",
           "test-support",
+          "vendor"
         }
       }
-    }
+    },
 }
