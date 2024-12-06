@@ -70,7 +70,7 @@ vim.o.smartcase = true
 vim.o.updatetime = 250
 vim.wo.signcolumn = 'yes'
 
-vim.o.colorcolumn = 80
+-- vim.o.colorcolumn = 80
 
 -- custom mapping for plugins
 require('remap')
