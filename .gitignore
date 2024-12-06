@@ -4,3 +4,6 @@ tmux/plugins
 *.log
 nvim/lazy-lock.json
 ep_solargraph.md
+fish_variables
+local.fish
+jsync.fish
