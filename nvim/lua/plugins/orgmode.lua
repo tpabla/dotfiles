@@ -48,24 +48,17 @@ return {
     })
 
     local wk = require("which-key")
-    wk.register({
-      t = {
-        name = "TODO Methods",
-        h = "Previous TODO State",
-        l = "Next TODO State"
-      },
-      s = {
-        name = "Scheduling TODO's",
-        s = "Schedule",
-        d = "Deadline",
-        t = "Timestamp",
-        c = "Clock in",
-        C = "Clock Out",
-        x = "Clock Cancel",
-      }
-    },
-    {
-      prefix = "<leader>o"
+    wk.add({
+      { "<leader>os", group = "Scheduling TODO's" },
+      { "<leader>osC", desc = "Clock Out" },
+      { "<leader>osc", desc = "Clock in" },
+      { "<leader>osd", desc = "Deadline" },
+      { "<leader>oss", desc = "Schedule" },
+      { "<leader>ost", desc = "Timestamp" },
+      { "<leader>osx", desc = "Clock Cancel" },
+      { "<leader>ot", group = "TODO Methods" },
+      { "<leader>oth", desc = "Previous TODO State" },
+      { "<leader>otl", desc = "Next TODO State" },
     })
   end,
 }

@@ -1,11 +1,5 @@
 --vim.g.mapleader = ',' Defined in lazy-plugins.lua for proper sequencing
 vim.keymap.set('n', '<leader>pv', vim.cmd.Ex)
--- vim.keymap.set('n', '<leader>d', '<Cmd>NvimTreeToggle<CR>')
--- vim.keymap.set('n', '<leader><space>', '<Cmd>StripWhitespace<Cr>')
--- vim.keymap.set({'n', 'v', 'i'}, '<C-h>', '<C-w>h')
--- vim.keymap.set({'n', 'v', 'i'}, '<C-j>', '<C-w>j')
--- vim.keymap.set({'n', 'v', 'i'}, '<C-k>', '<C-w>k')
--- vim.keymap.set({'n', 'v', 'i'}, '<C-l>', '<C-w>l')
 
 local telescope = require('telescope.builtin')
 vim.keymap.set('n', '<leader>ff', telescope.find_files, {})
