@@ -51,9 +51,27 @@ return {
       require('lspconfig')['solargraph'].setup {
         cmd = {"withenv", "~/Projects/easy_post/vendor/bundle/bundle", "exec", "solargraph", "stdio"},
       }
+
+      require('lspconfig').gopls.setup {
+        on_attach = function(client, bufnr)
+          -- Format on save
+          vim.api.nvim_create_autocmd("BufWritePre", {
+            buffer = bufnr,
+            callback = function()
+              vim.lsp.buf.format({ timeout_ms = 2000 })
+              vim.lsp.buf.code_action({
+                context = {
+                  only = { "source.organizeImports" } ,
+                  diagnostics = {},
+                },
+                apply = true
+              })
+            end,
+          })
+        end,
+      }
+
       require 'lspconfig'.tailwindcss.setup {
-        capabilities = Capabilities,
-       -- There add every filetype you want tailwind to work on
         filetypes = {
           "css",
           "scss",
@@ -67,6 +85,7 @@ return {
           "svelte",
           "vue",
           "rust",
+          "astro",
         },
         init_options = {
           userLanguages = {
@@ -77,9 +96,6 @@ return {
         on_attach = function(_, bufnr)
           require("tailwindcss-colors").buf_attach(bufnr)
         end,
-        -- Here If any of files from list will exist tailwind lsp will activate.
-        root_dir = require 'lspconfig'.util.root_pattern('tailwind.config.js', 'tailwind.config.ts', 'postcss.config.js',
-          'postcss.config.ts', 'windi.config.ts'),
       }
 
     -- Here is where you configure the autocompletion settings.

@@ -19,6 +19,7 @@ return {
           "rust",
           "vim",
           "yaml",
+          "swift",
         },
         sync_install = false,
         auto_install = true,
