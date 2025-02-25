@@ -17,6 +17,19 @@ function is_work()
   return work_env ~= nil
 end
 
+vim.api.nvim_create_autocmd({ "BufWritePre" }, {
+    group = vim.api.nvim_create_augroup("auto_create_dir", { clear = true }),
+    callback = function(event)
+        local file = event.match
+        -- Skip oil:// buffers
+        if string.match(file, "^oil:") then
+            return
+        end
+        local dir = vim.fn.fnamemodify(file, ":p:h")
+        vim.fn.mkdir(dir, "p")
+    end,
+})
+
 require("lazy").setup(
     "plugins",
     {
