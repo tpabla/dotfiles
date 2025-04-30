@@ -8,6 +8,5 @@ return {
     require("mini.surround").setup({})
     require("mini.hipatterns").setup({})
     require("mini.move").setup({})
-    require("mini.pairs").setup({})
   end,
 }

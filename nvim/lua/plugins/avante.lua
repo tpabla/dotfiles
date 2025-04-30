@@ -3,68 +3,40 @@ return {
   event = "VeryLazy",
   lazy = false,
   version = false, -- Set this to "*" to always pull the latest release version, or set it to false to update to the latest code changes.
-  enabled = false,
+  enabled = true,
   opts = {
-    provider = "claude",  -- Switch to OpenAI provider
+    -- provider = "claude",  -- Switch to OpenAI provider
+    provider = "lambda",
     -- auto_suggestions_provider = "copilot",  -- Optional
+    -- cursor_applying_provider = 'lambda',
+    behaviour = {
+        enable_cursor_planning_mode = true, -- enable cursor planning mode!
+    },
     vendors = {
-    ollama = {
-      api_key_name = "",
-      ask = "",
-      endpoint = "http://127.0.0.1:11434/api",
-      model = "deepseek-r1:8b",
-      parse_curl_args = function(opts, code_opts)
-        return {
-          url = opts.endpoint .. "/chat",
-          headers = {
-            ["Accept"] = "application/json",
-            ["Content-Type"] = "application/json",
-          },
-          body = {
-            model = opts.model,
-            options = {
-              num_ctx = 16384,
-            },
-            messages = require("avante.providers").copilot.parse_messages(code_opts), -- you can make your own message, but this is very advanced
-            stream = true,
-          },
-        }
-      end,
-      parse_stream_data = function(data, handler_opts)
-        -- Parse the JSON data
-        local json_data = vim.fn.json_decode(data)
-        -- Check for stream completion marker first
-        if json_data and json_data.done then
-          handler_opts.on_complete(nil)  -- Properly terminate the stream
-          return
-        end
-        -- Process normal message content
-        if json_data and json_data.message and json_data.message.content then
-          -- Extract the content from the message
-          local content = json_data.message.content
-          -- Call the handler with the content
-          handler_opts.on_chunk(content)
-              end
-          end,
-      },
       lambda = {
         __inherited_from = "openai",
         api_key_name="LAMBDA_API_KEY",
         endpoint = "https://api.lambdalabs.com/v1",
-        model = 'deepssek-r1',
+        model = 'llama-4-maverick-17b-128e-instruct-fp8',
+        disable_tools = true,
+        max_tokens = 1000000,  -- Set a reasonable token limit
       },
     },
     openai = {
         endpoint = "https://api.openai.com/v1/",  -- OpenAI endpoint
         model = "o3-mini",  -- Set your preferred OpenAI model (e.g., gpt-4, gpt-3.5-turbo)
         temperature = 0.7,  -- Adjust as needed
-        max_tokens = 2000,  -- Set a reasonable token limit
+        max_completion_tokens = 32768,  -- Set a reasonable token limit
     },
     claude = {
       endpoint = "https://api.anthropic.com",
       model = "claude-3-7-sonnet-20250219",
       temperature = 0.5,  -- Adjust as needed
       max_tokens = 32768,  -- Set a reasonable token limit
+    },
+    ollama = {
+      endpoint = "http://127.0.0.1:11434", -- Note that there is no /v1 at the end.
+      model = "deepcoder:14b",
     },
   },
   -- if you want to build from source then do `make BUILD_FROM_SOURCE=true`

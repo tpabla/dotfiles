@@ -16,7 +16,7 @@ return {
         enable = true,
         additional_vim_regex_highlighting = { 'org' },
       },
-      ensure_installed = { 'org' },
+      ensure_installed = { },
     })
 
     -- Setup org-bullets
@@ -26,6 +26,8 @@ return {
     require('orgmode').setup({
       org_agenda_files = '~/orgfiles/**/*',
       org_default_notes_file = '~/orgfiles/refile.org',
+      org_archive_location = '~/orgfiles/archive.org',
+      win_split_mode = 'float',
 
       prefix = '<Leader>o',
       mappings = {

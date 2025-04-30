@@ -56,7 +56,7 @@ vim.o.backup = false
 vim.cmd('filetype plugin indent on')
 
 -- indentation
-vim.o.tabstop = 2
+vim.o.tabstop = 4
 vim.o.shiftwidth = 2
 vim.o.expandtab = true
 vim.o.smartindent = true      -- Autoindent new lines
@@ -85,8 +85,13 @@ vim.wo.signcolumn = 'yes'
 
 -- vim.o.colorcolumn = 80
 
+-- for bufferline
+vim.o.showtabline = 2
+
 -- custom mapping for plugins
 require('remap')
+
+
 
 -- custom functions to be added to
 local functions = require('functions')

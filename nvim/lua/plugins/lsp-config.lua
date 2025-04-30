@@ -71,6 +71,18 @@ return {
         end,
       }
 
+      require('lspconfig').ruff.setup {
+        on_attach = function(client, bufnr)
+          -- Format on save
+          vim.api.nvim_create_autocmd("BufWritePre", {
+            buffer = bufnr,
+            callback = function()
+              vim.lsp.buf.format({ timeout_ms = 2000 })
+            end,
+          })
+        end,
+      }
+
       require 'lspconfig'.tailwindcss.setup {
         filetypes = {
           "css",
@@ -86,6 +98,7 @@ return {
           "vue",
           "rust",
           "astro",
+          "nextjs",
         },
         init_options = {
           userLanguages = {
