@@ -1,3 +1,5 @@
 return {
-  'chentoast/marks.nvim'
+  "chentoast/marks.nvim",
+  event = "VeryLazy",
+  opts = {},
 }
