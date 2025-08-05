@@ -56,6 +56,10 @@ vim.o.backup = false
 vim.o.winborder = "rounded"
 vim.cmd('filetype plugin indent on')
 
+-- Set window borders to white
+vim.api.nvim_set_hl(0, 'FloatBorder', { fg = '#ffffff' })
+vim.api.nvim_set_hl(0, 'WinSeparator', { fg = '#ffffff' })
+
 -- indentation
 vim.o.tabstop = 4
 vim.o.shiftwidth = 2
