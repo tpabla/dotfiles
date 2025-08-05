@@ -62,7 +62,7 @@ vim.api.nvim_set_hl(0, 'WinSeparator', { fg = '#ffffff' })
 
 -- indentation
 vim.o.tabstop = 4
-vim.o.shiftwidth = 2
+vim.o.shiftwidth = 4
 vim.o.expandtab = true
 vim.o.smartindent = true -- Autoindent new lines
 vim.o.autoindent = true  -- Autoindent new lines

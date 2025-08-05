@@ -20,4 +20,4 @@ set -x GOBIN /Users/taran/go/bin
 set -x EDITOR nvim
 set -x DOCKERPATH $HOME/.docker/bin
 
-set -gx PATH /opt/homebrew/bin $PATH /Users/taran/.local/bin
+set -gx PATH /opt/homebrew/bin $PATH /Users/taran/.local/bin ~/Library/Android/sdk/platform-tools $PWD/node_modules/.bin

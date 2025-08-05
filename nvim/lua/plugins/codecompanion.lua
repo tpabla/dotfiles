@@ -37,6 +37,9 @@ return {
       chat = {
         adapter = "anthropic",
       },
+      inline = {
+        adapter = "anthropic",
+      },
     },
     display = {
       action_palette = {
@@ -98,7 +101,8 @@ return {
     { "ibhagwan/fzf-lua",      config = true },
   },
   keys = {
-    { "<leader>ai", "<cmd>CodeCompanionChat<cr>",    desc = "CodeComapnion Chat" },
-    { "<leader>aa", "<cmd>CodeCompanionActions<cr>", desc = "CodeComapnion Actions" },
+    { "<leader>ai", "<cmd>CodeCompanionChat<cr>",    desc = "CodeCompanion Chat" },
+    { "<leader>aa", "<cmd>CodeCompanionActions<cr>", desc = "CodeCompanion Actions" },
+
   }
 }
