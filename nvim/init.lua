@@ -1,14 +1,14 @@
 vim.g.mapleader = ","
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not vim.loop.fs_stat(lazypath) then
-    vim.fn.system({
+  vim.fn.system({
     "git",
     "clone",
     "--filter=blob:none",
     "https://github.com/folke/lazy.nvim.git",
     "--branch=stable", -- latest stable release
     lazypath,
-    })
+  })
 end
 vim.opt.rtp:prepend(lazypath)
 
@@ -18,30 +18,30 @@ function is_work()
 end
 
 vim.api.nvim_create_autocmd({ "BufWritePre" }, {
-    group = vim.api.nvim_create_augroup("auto_create_dir", { clear = true }),
-    callback = function(event)
-        local file = event.match
-        -- Skip oil:// buffers
-        if string.match(file, "^oil:") then
-            return
-        end
-        local dir = vim.fn.fnamemodify(file, ":p:h")
-        vim.fn.mkdir(dir, "p")
-    end,
+  group = vim.api.nvim_create_augroup("auto_create_dir", { clear = true }),
+  callback = function(event)
+    local file = event.match
+    -- Skip oil:// buffers
+    if string.match(file, "^oil:") then
+      return
+    end
+    local dir = vim.fn.fnamemodify(file, ":p:h")
+    vim.fn.mkdir(dir, "p")
+  end,
 })
 
 require("lazy").setup(
-    "plugins",
-    {
-        install = {
-          colorscheme = {
-            'catpuccin',
-          }
-        },
-        ui = {
-            border = 'rounded',
-        }
+  "plugins",
+  {
+    install = {
+      colorscheme = {
+        'catpuccin',
+      }
+    },
+    ui = {
+      border = 'rounded',
     }
+  }
 )
 
 -- defaults
@@ -53,15 +53,16 @@ vim.o.termguicolors = true
 vim.o.swapfile = false
 vim.o.undofile = true
 vim.o.backup = false
+vim.o.winborder = "rounded"
 vim.cmd('filetype plugin indent on')
 
 -- indentation
 vim.o.tabstop = 4
 vim.o.shiftwidth = 2
 vim.o.expandtab = true
-vim.o.smartindent = true      -- Autoindent new lines
-vim.o.autoindent = true      -- Autoindent new lines
-vim.o.cindent = true          -- Autoindent new lines, smarter? (experimental)
+vim.o.smartindent = true -- Autoindent new lines
+vim.o.autoindent = true  -- Autoindent new lines
+vim.o.cindent = true     -- Autoindent new lines, smarter? (experimental)
 
 -- Set highlight on search
 vim.opt.hlsearch = false
@@ -95,4 +96,4 @@ require('remap')
 
 -- custom functions to be added to
 local functions = require('functions')
-vim.keymap.set({'n', 'i'}, '<leader>r', functions.reload)
+vim.keymap.set({ 'n', 'i' }, '<leader>r', functions.reload)
