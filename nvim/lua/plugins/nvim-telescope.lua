@@ -2,7 +2,8 @@ return {
   'nvim-telescope/telescope.nvim',
   tag = '0.1.4',
   dependencies = {
-    'nvim-lua/plenary.nvim'
+    'nvim-lua/plenary.nvim',
+    'folke/which-key.nvim'
   },
   opts = {
     defaults = {
@@ -52,6 +53,25 @@ return {
         end
       }
     end
+
+    -- Telescope keymaps
+    vim.keymap.set('n', '<leader>ff', builtin.find_files, {})
+    vim.keymap.set('n', '<leader>fg', builtin.live_grep, {})
     vim.keymap.set('n', '<leader>fb', buffer_searcher, {})
+    vim.keymap.set('n', '_', buffer_searcher, {})
+    vim.keymap.set('n', '<leader>fh', builtin.help_tags, {})
+    vim.keymap.set({ 'n', 'v', 'i' }, '<C-p>', builtin.find_files, {})
+
+    -- Which-key integration
+    local wk = require("which-key")
+    wk.add({
+      { "<C-p>", desc = "Find Files" },
+      { "<leader>f", group = "Find" },
+      { "<leader>fb", desc = "Find Buffers" },
+      { "<leader>ff", desc = "Find Files" },
+      { "<leader>fg", desc = "Live Grep" },
+      { "<leader>fh", desc = "Help Tags" },
+      { "_", desc = "Find Buffers" },
+    })
   end
 }
