@@ -93,6 +93,15 @@ vim.wo.signcolumn = 'yes'
 -- for bufferline
 vim.o.showtabline = 2
 
+-- for near realtime file updates
+vim.o.autoread = true
+
+-- Check for file changes every 500ms
+local timer = vim.loop.new_timer()
+timer:start(500, 500, vim.schedule_wrap(function()
+  vim.cmd('checktime')
+end))
+
 -- custom mapping for plugins
 require('remap')
 

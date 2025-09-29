@@ -19,8 +19,36 @@ return {
         lualine_z = { "location" },
       }
       opts.tabline = {
-        lualine_a = { "buffers" },
-        lualine_z = { "tabs" },
+        lualine_a = {
+          {
+            "buffers",
+            show_filename_only = true,
+            hide_filename_extension = false,
+            show_modified_status = true,
+            mode = 2, -- Shows buffer name + buffer index
+            max_length = vim.o.columns * 2 / 3,
+            symbols = {
+              modified = ' ●',      -- Unsaved changes
+              alternate_file = '#', -- Alternate buffer
+              directory = '',     -- Directory indicator
+            },
+          }
+        },
+        lualine_b = {},
+        lualine_c = {},
+        lualine_x = {},
+        lualine_y = {},
+        lualine_z = {
+          {
+            "tabs",
+            tab_max_length = 40,
+            max_length = vim.o.columns / 3,
+            mode = 2, -- Shows tab number + tab name
+            symbols = {
+              modified = ' ●',
+            },
+          }
+        }
       }
     end,
     keys = {
