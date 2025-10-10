@@ -43,12 +43,13 @@ return {
         lua_ls = function()
           -- (Optional) Configure lua language server for neovim
           local lua_opts = lsp_zero.nvim_lua_ls()
-          require('lspconfig').lua_ls.setup(lua_opts)
+          vim.lsp.config.lua_ls = lua_opts
+          vim.lsp.enable('lua_ls')
         end,
       }
     })
 
-    require 'lspconfig'.tailwindcss.setup {
+    vim.lsp.config.tailwindcss = {
       filetypes = {
         "css",
         "scss",
@@ -75,6 +76,7 @@ return {
         require("tailwindcss-colors").buf_attach(bufnr)
       end,
     }
+    vim.lsp.enable('tailwindcss')
 
     -- Here is where you configure the autocompletion settings.
     lsp_zero.extend_cmp()
