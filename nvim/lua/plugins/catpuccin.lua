@@ -14,5 +14,7 @@ return {
       term_colors = true,              -- sets terminal colors (e.g. `g:terminal_color_0`)
     })
     vim.cmd.colorscheme "catppuccin"
+
+
   end,
 }
