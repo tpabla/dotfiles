@@ -1,20 +1,47 @@
-dotfiles
-=========
+# dotfiles
 
 ![alt text](./neovim_and_tmux.png)
 
-nvim
-===
-Consult this site for information about the package manager:
-https://github.com/folke/lazy.nvim (Optional)
+## nvim
 
-Copy or link the nvim directory into `~/.config/nvim`
+A Neovim configuration using [lazy.nvim](https://github.com/folke/lazy.nvim) as the plugin manager with the **Catppuccin Macchiato** color scheme and transparent background.
 
-tmux
-===
+### Highlights
+
+- **LSP** — LSP support via lsp-zero, mason, and nvim-lsp-config with auto-formatting
+- **Completion** — nvim-cmp with LuaSnip snippets
+- **Navigation** — Telescope, nvim-tree, oil.nvim, and vim-tmux-navigator
+- **Git** — vim-fugitive and diffview.nvim
+- **AI** — CodeCompanion and Ollama integration
+- **UI** — lualine, noice, dashboard, indent-blankline, tint.nvim (dims inactive windows), and which-key
+- **Editing** — treesitter, vim-surround, vim-commentary, undotree, trouble, nvim-ufo (folding), and zen mode
+- **Org/Markdown** — orgmode, render-markdown, markdown-preview, and table-mode
+- **Debugging** — nvim-dap
+
+### Setup
+
+Copy or symlink the `nvim` directory into `~/.config/nvim`:
+
+```sh
+ln -s /path/to/dotfiles/nvim ~/.config/nvim
 ```
+
+Plugins will install automatically on first launch via lazy.nvim.
+
+## tmux
+
+### Setup
+
+Install [TPM](https://github.com/tmux-plugins/tpm):
+
+```sh
 git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
 ```
-Copy or link the tmux directory into `~/.config/tmux`
 
-Open tmux and run `prefix + I` to install TPM packages
+Copy or symlink the `tmux` directory into `~/.config/tmux`:
+
+```sh
+ln -s /path/to/dotfiles/tmux ~/.config/tmux
+```
+
+Open tmux and press `prefix + I` to install plugins.
