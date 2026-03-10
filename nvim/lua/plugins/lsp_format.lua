@@ -5,7 +5,12 @@ return {
     vim.api.nvim_create_autocmd("LspAttach", {
       callback = function(args)
         local client = vim.lsp.get_client_by_id(args.data.client_id)
-        require("lsp-format").on_attach(client, args.buf)
+        local buf = args.buf
+        local ft = vim.bo[buf].filetype
+        if ft == "typescript" or ft == "typescriptreact" then
+          return
+        end
+        require("lsp-format").on_attach(client, buf)
       end,
     })
   end,

@@ -10,10 +10,6 @@ function rust_book
   rustup docs --book
 end
 
-if command -v jest >/dev/null 2>&1
-  jest --completion fish | source
-end
-
 fish_vi_key_bindings
 
 bind -M insert \cd delete-char  # For vi insert mode
@@ -31,3 +27,5 @@ set -x DOCKERPATH $HOME/.docker/bin
 set -x PAGER less -R
 
 set -gx PATH /opt/homebrew/bin $PATH /Users/taran/.local/bin ~/Library/Android/sdk/platform-tools $PWD/node_modules/.bin
+
+alias unlock-keychain="security unlock-keychain ~/Library/Keychains/login.keychain-db"

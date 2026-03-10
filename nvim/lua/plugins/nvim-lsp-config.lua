@@ -48,28 +48,35 @@ return {
             }
         })
 
-        vim.lsp.config.tailwindcss.setup = {
-            filetypes = {
-                "css",
-                "scss",
-                "sass",
-                "postcss",
-                "html",
-                "javascript",
-                "javascriptreact",
-                "typescript",
-                "typescriptreact",
-                "svelte",
-                "vue",
-                "rust",
-                "astro",
-                "nextjs",
-            },
-            init_options = {
-                userLanguages = {
-                    rust = "html",
-                },
-            },
+    vim.lsp.config.expert = {
+      cmd = { "expert", "--stdio" },
+      filetypes = { "elixir", "eelixir", "heex" },
+      root_markers = { "mix.exs", ".git" },
+    }
+    vim.lsp.enable('expert')
+
+    vim.lsp.config.tailwindcss = {
+      filetypes = {
+        "css",
+        "scss",
+        "sass",
+        "postcss",
+        "html",
+        "javascript",
+        "javascriptreact",
+        "typescript",
+        "typescriptreact",
+        "svelte",
+        "vue",
+        "rust",
+        "astro",
+        "nextjs",
+      },
+      init_options = {
+        userLanguages = {
+          rust = "html",
+        },
+      },
 
             on_attach = function(_, bufnr)
                 require("tailwindcss-colors").buf_attach(bufnr)

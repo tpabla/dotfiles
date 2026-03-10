@@ -56,6 +56,19 @@ vim.o.backup = false
 vim.o.winborder = "rounded"
 vim.cmd('filetype plugin indent on')
 
+-- clipboard
+vim.g.clipboard = {
+  name = 'OSC 52',
+  copy = {
+    ['+'] = require('vim.ui.clipboard.osc52').copy('+'),
+    ['*'] = require('vim.ui.clipboard.osc52').copy('*'),
+  },
+  paste = {
+    ['+'] = require('vim.ui.clipboard.osc52').paste('+'),
+    ['*'] = require('vim.ui.clipboard.osc52').paste('*'),
+  },
+}
+
 -- Set window borders to white
 vim.api.nvim_set_hl(0, 'FloatBorder', { fg = '#ffffff' })
 vim.api.nvim_set_hl(0, 'WinSeparator', { fg = '#ffffff' })
@@ -105,8 +118,7 @@ end))
 -- custom mapping for plugins
 require('remap')
 
-
-
 -- custom functions to be added to
 local functions = require('functions')
 vim.keymap.set({ 'n', 'i' }, '<leader>r', functions.reload)
+vim.lsp.set_log_level("DEBUG")

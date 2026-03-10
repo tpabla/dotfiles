@@ -52,8 +52,8 @@ return {
       }
     end,
     keys = {
-      { "<leader>l", "<cmd>bnext<cr>", desc = "Next buffer" },
-      { "<leader>h", "<cmd>bprevious<cr>", desc = "Previous buffer" },
+      { "]]", "<cmd>bnext<cr>", desc = "Next buffer" },
+      { "[[", "<cmd>bprevious<cr>", desc = "Previous buffer" },
     },
   },
 }
