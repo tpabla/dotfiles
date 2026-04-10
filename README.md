@@ -45,3 +45,22 @@ ln -s /path/to/dotfiles/tmux ~/.config/tmux
 ```
 
 Open tmux and press `prefix + I` to install plugins.
+
+## claude
+
+Claude Code configuration and skills, split by context:
+
+- **`claude/`** — personal skills
+- **`claude-work/`** — work skills and settings
+
+Each directory contains a `.claude/` folder with skills (and optionally `settings.json`). Use `--add-dir` to import them into a project:
+
+```sh
+claude --add-dir /path/to/dotfiles/claude-work
+```
+
+### Symlink settings
+
+```sh
+ln -sf /path/to/dotfiles/claude-work/.claude/settings.json ~/.claude/settings.json
+```
