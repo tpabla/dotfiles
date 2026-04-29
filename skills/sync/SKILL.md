@@ -91,8 +91,7 @@ To check for remote changes, optionally fetch each Notion page and compare again
    - Content added by other collaborators outside of synced sections
    Only use `replace_content` if the structure changed too much for targeted updates, and warn the user first.
 8. Set `pushed_hash = local_hash`, `local_status: synced`, update `last_pushed` to today
-9. Update `wiki/remote.md` with new hash and status
-10. Git commit: `sync-push(<doc>): Push local edits to Notion`
+9. Git commit: `sync-push(<doc>): Push local edits to Notion`
 
 ### Diff
 
@@ -137,4 +136,4 @@ Every sync operation creates an atomic git commit:
 - `sync-pull(<doc>): <description>` — after pulling from Notion
 - `sync-push(<doc>): <description>` — after pushing to Notion
 
-All files touched by the operation (sync file, remote.md) go in one commit for clean reverts.
+All files touched by the operation go in one commit for clean reverts.
