@@ -1,0 +1,46 @@
+/* Catppuccin Macchiato syntax highlighting for fenced code blocks */
+
+.markdown-body .hljs {
+  background: #1e2030 !important;
+  color: #cad3f5 !important;
+}
+
+.hljs-comment,
+.hljs-quote { color: #6e738d; font-style: italic; }
+
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-literal { color: #c6a0f6; }
+
+.hljs-string,
+.hljs-doctag,
+.hljs-regexp { color: #a6da95; }
+
+.hljs-number,
+.hljs-meta { color: #f5a97f; }
+
+.hljs-title,
+.hljs-section,
+.hljs-name { color: #8aadf4; }
+
+.hljs-built_in,
+.hljs-builtin-name { color: #8bd5ca; }
+
+.hljs-type,
+.hljs-class .hljs-title { color: #eed49f; }
+
+.hljs-variable,
+.hljs-template-variable,
+.hljs-attr { color: #f5bde6; }
+
+.hljs-tag,
+.hljs-attribute { color: #7dc4e4; }
+
+.hljs-symbol,
+.hljs-bullet,
+.hljs-link { color: #ee99a9; }
+
+.hljs-emphasis { font-style: italic; }
+.hljs-strong { font-weight: bold; }
+.hljs-deletion { color: #ed8796; }
+.hljs-addition { color: #a6da95; }

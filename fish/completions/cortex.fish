@@ -1,13 +1,15 @@
-# cortex-cli-completion-version: 1.0.66+185850.47d3f3ed24e7
+# cortex-cli-completion-version: 1.0.83+163740.32bfc56eef24
 # Cortex CLI completions for fish shell
 complete -c cortex -f
 
 # Options
 complete -c cortex -l workdir -s w -d "Working directory"
+complete -c cortex -l mount -d "Additional mount for sandbox VM (hostPath=<path>,mountPath=<path>[,ro]). May be repeated."
 complete -c cortex -l connection -s c -d "Snowflake connection name"
 complete -c cortex -l model -s m -d "Model override"
 complete -c cortex -l mode -d "Agent mode: 'standard' or 'code'"
 complete -c cortex -l plan -d "Enable plan mode"
+complete -c cortex -l sql-read-only -d "Start the session with the built-in SQL tool in read-only mode (rejects DDL/DML via CORTEX_CLIENT_READ_ONLY). Toggle at runtime with /sql-readonly on|off."
 complete -c cortex -l bypass -d "Enable bypass safeguards mode (auto-approve all tool calls)"
 complete -c cortex -l dangerously-allow-all-tool-calls -d "Enable bypass safeguards mode (auto-approve all tool calls)"
 complete -c cortex -l auto-accept-plans -d "Auto-accept plan mode requests and confirmations without prompting"
@@ -59,5 +61,5 @@ complete -c cortex -n "__fish_use_subcommand" -a "artifact" -d "Artifact operati
 complete -c cortex -n "__fish_use_subcommand" -a "analyst" -d "Cortex Analyst operations"
 complete -c cortex -n "__fish_use_subcommand" -a "env" -d "Environment detection"
 complete -c cortex -n "__fish_use_subcommand" -a "agents" -d "Discover and explore Cortex Agents"
-complete -c cortex -n "__fish_use_subcommand" -a "attach" -d "Attach to a background agent"
+complete -c cortex -n "__fish_use_subcommand" -a "lineage" -d "Show upstream and downstream lineage for a Snowflake object"
 complete -c cortex -n "__fish_use_subcommand" -a "airflow" -d "Interact with Apache Airflow"
