@@ -1,4 +1,4 @@
-# cortex-cli-completion-version: 1.0.83+163740.32bfc56eef24
+# cortex-cli-completion-version: 1.0.98+185601.3ff0835441f6
 # Cortex CLI completions for fish shell
 complete -c cortex -f
 
@@ -9,6 +9,7 @@ complete -c cortex -l connection -s c -d "Snowflake connection name"
 complete -c cortex -l model -s m -d "Model override"
 complete -c cortex -l mode -d "Agent mode: 'standard' or 'code'"
 complete -c cortex -l plan -d "Enable plan mode"
+complete -c cortex -l goal -d "Run the provided prompt as a goal and submit it as the first headless message"
 complete -c cortex -l sql-read-only -d "Start the session with the built-in SQL tool in read-only mode (rejects DDL/DML via CORTEX_CLIENT_READ_ONLY). Toggle at runtime with /sql-readonly on|off."
 complete -c cortex -l bypass -d "Enable bypass safeguards mode (auto-approve all tool calls)"
 complete -c cortex -l dangerously-allow-all-tool-calls -d "Enable bypass safeguards mode (auto-approve all tool calls)"
@@ -19,6 +20,8 @@ complete -c cortex -l continue -d "Resume the most recent session"
 complete -c cortex -l session-name -d "Name for the new session (ignored when resuming)"
 complete -c cortex -l session-id -d "Set the session ID for a new session (ignored when resuming)"
 complete -c cortex -l fork-session -d "When resuming, fork to a new session instead of continuing the existing one"
+complete -c cortex -l fork -d "Fork an existing session into a new one. In TUI: opens the message picker to choose where to fork from. In --print/--input-format stream-json: forks the full history (equivalent to --resume <id> --fork-session)."
+complete -c cortex -l resume-session-at -d "When forking a resumed session, truncate history at this message ID (requires --fork-session and --resume)"
 complete -c cortex -l setting-sources -d "Comma-separated list of setting sources to load: user, project. Empty string disables all."
 complete -c cortex -l output-format -d "Output format: 'stream-json' for JSON streaming output"
 complete -c cortex -l input-format -d "Input format: 'stream-json' for JSON stdin input (use with --output-format stream-json)"
@@ -40,6 +43,7 @@ complete -c cortex -l max-turns -d "Maximum number of agentic turns per conversa
 complete -c cortex -l effort -d "Thinking effort level: minimal, low, medium, high, or max"
 complete -c cortex -l agent -d "Use a custom agent definition by name (from .cortex/agents/ or ~/.snowflake/cortex/agents/)"
 complete -c cortex -l index -d "Build tgrep semantic search index on startup"
+complete -c cortex -l team -d "Enable teams mode (loads team-workflow skill on startup)"
 complete -c cortex -l mcp-config -d "MCP server configuration as a JSON string (e.g. '{\"mcpServers\": {\"server-name\": {\"type\": \"stdio\", \"command\": \"cmd\"}}}')"
 
 # Commands

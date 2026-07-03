@@ -29,3 +29,6 @@ set -x PAGER less -R
 set -gx PATH /opt/homebrew/bin $PATH /Users/taran/.local/bin ~/Library/Android/sdk/platform-tools $PWD/node_modules/.bin
 
 alias unlock-keychain="security unlock-keychain ~/Library/Keychains/login.keychain-db"
+
+# Hermes Agent — ensure ~/.local/bin is on PATH
+fish_add_path "$HOME/.local/bin"
