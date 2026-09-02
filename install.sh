@@ -65,9 +65,12 @@ info() { printf '  %s\n' "$1"; }
 step() { printf '\n== %s\n' "$1"; }
 run()  { if [ "$DRY_RUN" = 1 ]; then info "would: $*"; else "$@"; fi; }
 
-# link <source-relative-to-dotfiles> <absolute-target>
+# link <source-relative-to-dotfiles> <absolute-target> [backup-path]
+# A backup-path is needed when the target sits in a directory that is scanned
+# for content: a <name>.bak.<stamp> left inside ~/.claude/skills would be
+# loaded as a second, duplicate skill.
 link() {
-  local src="$DOTFILES/$1" target="$2" current
+  local src="$DOTFILES/$1" target="$2" backup_override="${3:-}" current
 
   if [ ! -e "$src" ]; then
     info "missing in repo, skipping: $1"
@@ -105,7 +108,8 @@ link() {
       return
     fi
 
-    local backup="$target.bak.$STAMP"
+    local backup="${backup_override:-$target}.bak.$STAMP"
+    run mkdir -p "$(dirname "$backup")"
     run mv "$target" "$backup" || { info "could not back up $target"; return; }
     BACKED_UP=$((BACKED_UP + 1))
     info "backed up -> $backup"
@@ -153,8 +157,18 @@ link fish  "$HOME/.config/fish"
 link kitty "$HOME/.config/kitty"
 link nvim  "$HOME/.config/nvim"
 link tmux  "$HOME/.config/tmux"
+# herdr keeps its sockets, logs, and session state in ~/.config/herdr, so only
+# the config file is linked rather than the whole directory.
+link herdr/config.toml "$HOME/.config/herdr/config.toml"
 link yabai "$HOME/.config/yabai"
 link skhd  "$HOME/.config/skhd"
+
+# Global agent instructions. Kept per-agent because the wording differs
+# (each file names its own agent).
+link claude/CLAUDE.md "$HOME/.claude/CLAUDE.md"
+link codex/AGENTS.md  "$HOME/.codex/AGENTS.md"
+# pi rewrites this file itself (theme, lastChangelogVersion), so expect churn.
+link pi/settings.json "$HOME/.pi/agent/settings.json"
 
 # Skills land in ~/.claude/skills, where they apply to every project, so each one
 # is opt-in per run rather than linked wholesale.
@@ -178,8 +192,16 @@ else
         *) SKIPPED=$((SKIPPED + 1)); SKIPPED_PATHS+=("$target"); info "declined $name"; continue ;;
       esac
     fi
-    link "skills/$name" "$target"
+    link "skills/$name" "$target" "$HOME/.claude/skill-backups/$name"
   done
+fi
+
+step "Agent hook permissions"
+if [ -f "$DOTFILES/agents/agent-status-hook.sh" ] && [ ! -x "$DOTFILES/agents/agent-status-hook.sh" ]; then
+  run chmod +x "$DOTFILES/agents/agent-status-hook.sh"
+  info "made agent-status-hook.sh executable"
+else
+  info "agent-status-hook.sh already executable"
 fi
 
 step "yabai config permissions"
@@ -188,6 +210,50 @@ if [ -f "$DOTFILES/yabai/yabairc" ] && [ ! -x "$DOTFILES/yabai/yabairc" ]; then
   info "made yabairc executable"
 else
   info "yabairc already executable"
+fi
+
+step "Agent status hooks"
+# tmux-agent-status reads Claude Code and Codex lifecycle hooks. Codex loads a
+# whole hooks.json, so it can simply be linked. Claude Code keeps hooks inside
+# settings.json alongside unrelated settings, so that one is merged, not linked.
+link agents/codex-hooks.json "$HOME/.codex/hooks.json"
+# pi ships no hooks file, so the reporter is a pi extension instead. It resolves
+# agent-status-hook.sh as a sibling through this symlink.
+link agents/pi-agent-status.ts "$HOME/.pi/agent/extensions/pi-agent-status.ts"
+info "enable Codex hooks: add [features] hooks = true to ~/.codex/config.toml,"
+info "then run /hooks inside Codex and trust the commands"
+
+CLAUDE_SETTINGS="$HOME/.claude/settings.json"
+if ! command -v jq >/dev/null 2>&1; then
+  info "jq not found; skipping Claude Code hook merge"
+elif [ ! -f "$CLAUDE_SETTINGS" ]; then
+  info "no $CLAUDE_SETTINGS; skipping Claude Code hook merge"
+elif [ "$(jq -r '.hooks.Stop[0].hooks[0].command // ""' "$CLAUDE_SETTINGS")" = \
+       "$(jq -r '.hooks.Stop[0].hooks[0].command // ""' "$DOTFILES/agents/claude-hooks.json")" ]; then
+  info "Claude Code hooks already installed"
+else
+  reply=y
+  if [ "$CONFLICT_MODE" = ask ]; then
+    printf '  merge agent-status hooks into %s?\n' "$CLAUDE_SETTINGS"
+    read -r -p "    this overwrites any existing .hooks entries [y/N] " reply </dev/tty
+  fi
+  case "$reply" in
+    y|Y)
+      if [ "$DRY_RUN" = 1 ]; then
+        info "would merge hooks into $CLAUDE_SETTINGS"
+      else
+        cp "$CLAUDE_SETTINGS" "$CLAUDE_SETTINGS.bak.$STAMP"
+        if jq -s '.[0] * .[1]' "$CLAUDE_SETTINGS" "$DOTFILES/agents/claude-hooks.json" \
+             > "$CLAUDE_SETTINGS.tmp" && mv "$CLAUDE_SETTINGS.tmp" "$CLAUDE_SETTINGS"; then
+          info "merged hooks (backup at $CLAUDE_SETTINGS.bak.$STAMP)"
+        else
+          rm -f "$CLAUDE_SETTINGS.tmp"
+          info "merge failed; $CLAUDE_SETTINGS left unchanged"
+        fi
+      fi
+      ;;
+    *) info "skipped Claude Code hook merge" ;;
+  esac
 fi
 
 step "tmux plugin manager"
