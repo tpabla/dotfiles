@@ -1,0 +1,7 @@
+{
+  "defaultModel": "gpt-5.4",
+  "defaultProvider": "openai-codex",
+  "defaultThinkingLevel": "off",
+  "lastChangelogVersion": "0.69.0",
+  "theme": "dark"
+}

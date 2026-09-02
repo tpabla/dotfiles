@@ -1,0 +1,91 @@
+# herdr configuration — mirrors tmux/tmux.conf as closely as herdr allows.
+# Linked to ~/.config/herdr/config.toml by install.sh.
+# Full default config: `herdr --default-config`
+# Apply edits to a running server: `herdr server reload-config`
+
+onboarding = false
+
+[theme]
+# Built-in catppuccin is mocha; the overrides below shift it to macchiato
+# to match @catppuccin_flavour in tmux.conf.
+name = "catppuccin"
+
+auto_switch = false
+[theme.custom]
+sidebar_bg = "#1e2030"
+active_row_bg = "#24273a"
+selection_bg = "#363a4f"
+accent = "#8aadf4"
+red = "#ed8796"
+green = "#a6da95"
+
+[terminal]
+# tmux bound splits with -c "#{pane_current_path}"; "follow" is the equivalent.
+new_cwd = "follow"
+
+[keys]
+# tmux.conf switched prefix on $WORK (C-a personal, C-b at work). herdr's TOML
+# has no conditionals and `prefix` rejects an array of chords, so pick one:
+# ctrl+a, matching the personal-machine binding. herdr's own default is ctrl+b.
+prefix = "ctrl+b"
+
+# Pane focus. Deliberately prefix-only: herdr has no equivalent of
+# vim-tmux-navigator's is_vim check, so bare ctrl+hjkl would be stolen from
+# nvim. Under herdr, $TMUX is unset and vim-tmux-navigator falls back to
+# plain window navigation, so ctrl+hjkl keeps working inside nvim.
+focus_pane_left = "prefix+h"
+focus_pane_down = "prefix+j"
+focus_pane_up = "prefix+k"
+focus_pane_right = "prefix+l"
+
+# Splits: prefix+v opens right, prefix+- opens down (herdr's names are
+# inverted relative to tmux's split-window -h/-v).
+split_vertical = ["prefix+%", "prefix+v"]
+split_horizontal = ['prefix+"', "prefix+minus"]
+
+# Closest thing to `bind Enter swap-pane -s : -t :.0`: herdr has no named
+# layouts or main-slot concept, so swap directionally instead.
+# prefix+shift+h/j/k/l swap panes; prefix+r enters resize mode.
+resize_mode = "prefix+r"
+zoom = "prefix+z"
+last_pane = "prefix+tab"
+
+[ui]
+# tmux had status-position bottom.
+tab_bar_position = "bottom"
+
+# tmux-style splitters: no outer frame, no gaps between panes.
+pane_outer_borders = false
+pane_gaps = false
+
+# set -g mouse on / set-clipboard on
+mouse_capture = true
+copy_on_select = true
+
+# tmux `prefix c` created a window immediately; allow-rename/automatic-rename
+# were both off, so names stay manual.
+prompt_new_tab_name = false
+
+# Stand-in for @catppuccin_status_modules (user host / session directory date_time).
+# hostname and datetime resolve server-side; the workspace name and git branch
+# already show in the sidebar.
+tab_bar_right = [
+  { type = "zoom" },
+  { type = "hostname" },
+  { type = "datetime", format = "%Y-%m-%d %H:%M:%S" },
+]
+tab_bar_right_separator = " · "
+
+window_title = "{hostname}: {workspace}"
+
+[session]
+# Equivalent to tmux-resurrect + tmux-continuum: agent panes come back with
+# their native conversation sessions after a server restart.
+resume_agents_on_restore = true
+
+[experimental]
+# @resurrect-capture-pane-contents 'on' equivalent.
+pane_history = true
+
+# Kitty graphics passthrough, replacing the allow-passthrough plumbing in tmux.conf.
+kitty_graphics = true
