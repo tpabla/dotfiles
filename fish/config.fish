@@ -26,7 +26,7 @@ set -x DOCKERPATH $HOME/.docker/bin
 
 set -x PAGER less -R
 
-set -gx PATH /opt/homebrew/bin $PATH /Users/taran/.local/bin ~/Library/Android/sdk/platform-tools $PWD/node_modules/.bin
+set -gx PATH /opt/homebrew/bin $PATH /Users/taran/.local/bin ~/Library/Android/sdk/platform-tools $PWD/node_modules/.bin ~/.tools
 
 alias unlock-keychain="security unlock-keychain ~/Library/Keychains/login.keychain-db"
 

@@ -1,0 +1,18 @@
+yabai -m config layout bsp
+
+# yabai -m config --space 2 layout float
+
+yabai -m config top_padding    0
+yabai -m config bottom_padding 0
+yabai -m config left_padding   0
+yabai -m config right_padding  0
+yabai -m config window_gap     0
+
+# Override gaps for space 2 only
+yabai -m config --space 2 window_gap 0
+
+# New window spawns to the left if vertical split, or top if horizontal split
+yabai -m config window_placement first_child
+
+yabai -m rule --add app="Music" manage=off sticky=on label="apple_music"
+yabai -m rule --add app="mpv" manage=off
