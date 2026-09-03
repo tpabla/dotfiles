@@ -10,15 +10,6 @@ return {
   config = function()
     vim.opt.conceallevel = 2
     vim.opt.concealcursor = 'nc'
-    -- Setup treesitter
-    require('nvim-treesitter.configs').setup({
-      highlight = {
-        enable = true,
-        additional_vim_regex_highlighting = { 'org' },
-      },
-      ensure_installed = { },
-    })
-
     -- Setup org-bullets
     require('org-bullets').setup()
 
