@@ -157,9 +157,6 @@ link fish  "$HOME/.config/fish"
 link kitty "$HOME/.config/kitty"
 link nvim  "$HOME/.config/nvim"
 link tmux  "$HOME/.config/tmux"
-# herdr keeps its sockets, logs, and session state in ~/.config/herdr, so only
-# the config file is linked rather than the whole directory.
-link herdr/config.toml "$HOME/.config/herdr/config.toml"
 link yabai "$HOME/.config/yabai"
 link skhd  "$HOME/.config/skhd"
 
