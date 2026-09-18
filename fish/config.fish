@@ -1,5 +1,5 @@
 # The following lines were added by Docker Desktop to add commands to your PATH.
-export PATH="$PATH:$HOME/.docker/bin"
+export PATH="$PATH:/Users/taran/.docker/bin"
 # End of Docker Desktop section.
 
 function vim
@@ -30,9 +30,18 @@ set -x DOCKERPATH $HOME/.docker/bin
 
 set -x PAGER less -R
 
+set -x ROKU_DEV_TARGET 192.168.50.38
+set -x ROKU_USERNAME rokudev
+set -x ROKU_PASSWORD roku123
+
 set -gx PATH /opt/homebrew/bin $PATH $HOME/.local/bin ~/Library/Android/sdk/platform-tools $PWD/node_modules/.bin ~/.tools
 
 alias unlock-keychain="security unlock-keychain ~/Library/Keychains/login.keychain-db"
+alias sync 'git fetch origin main:main; and echo "sync complete: main at "(git rev-parse --short main)'
 
 # Hermes Agent — ensure ~/.local/bin is on PATH
 fish_add_path "$HOME/.local/bin"
+
+
+# Added by Antigravity CLI installer
+set -gx PATH "/Users/taran/.local/bin" $PATH
