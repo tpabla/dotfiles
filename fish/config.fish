@@ -15,6 +15,7 @@ function rust_book
 end
 
 fish_vi_key_bindings
+fish_config theme choose "Catppuccin Macchiato"
 
 bind -M insert \cd delete-char  # For vi insert mode
 bind -M default \cd delete-char # For vi normal mode
