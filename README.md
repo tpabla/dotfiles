@@ -33,6 +33,7 @@ What gets linked:
 | `kitty/` | `~/.config/kitty` |
 | `nvim/` | `~/.config/nvim` |
 | `tmux/` | `~/.config/tmux` |
+| `herdr/config.toml` | `~/.config/herdr/config.toml` |
 | `agents/codex-hooks.json` | `~/.codex/hooks.json` |
 | `agents/pi-agent-status.ts` | `~/.pi/agent/extensions/pi-agent-status.ts` |
 | `claude/CLAUDE.md` | `~/.claude/CLAUDE.md` |

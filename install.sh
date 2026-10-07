@@ -159,6 +159,7 @@ link nvim  "$HOME/.config/nvim"
 link tmux  "$HOME/.config/tmux"
 link yabai "$HOME/.config/yabai"
 link skhd  "$HOME/.config/skhd"
+link herdr/config.toml "$HOME/.config/herdr/config.toml"
 
 # Global agent instructions. Kept per-agent because the wording differs
 # (each file names its own agent).
