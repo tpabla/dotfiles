@@ -10,7 +10,7 @@ cd ~/Personal/dotfiles
 ./install.sh
 ```
 
-`install.sh` installs the `Brewfile` packages, symlinks each config into `~/.config`, clones TPM, and starts the yabai and skhd services. It is safe to rerun: symlinks that already point at this repo are left alone, and nothing is ever deleted.
+`install.sh` installs the `Brewfile` packages, symlinks each config into `~/.config`, clones TPM, installs the herdr vim-navigator plugin (which the ctrl+h/j/k/l bindings in `herdr/config.toml` call), and starts the yabai and skhd services. It is safe to rerun: symlinks that already point at this repo are left alone, and nothing is ever deleted.
 
 When a real file or directory already sits at a target path, the script stops and asks. Choosing **b** moves the existing path to `<name>.bak.<timestamp>` next to it and then links; choosing **s** leaves it untouched and reports it in the summary. Skills in `skills/` are confirmed one at a time, since they install at the user level in `~/.claude/skills` and apply to every project.
 

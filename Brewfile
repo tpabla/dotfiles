@@ -7,6 +7,7 @@ cask "kitty"
 # Editor and multiplexer
 brew "neovim"
 brew "tmux"
+brew "herdr"
 # tmux-agent-status's sidebar needs bash >= 4; macOS ships 3.2
 brew "bash"
 

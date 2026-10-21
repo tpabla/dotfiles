@@ -263,6 +263,18 @@ else
   info "run tmux and press prefix + I to install plugins"
 fi
 
+step "herdr plugins"
+# config.toml binds ctrl+h/j/k/l to local.vim-navigator actions, which do
+# nothing until the plugin is installed.
+if ! command -v herdr >/dev/null 2>&1; then
+  info "herdr not installed, skipping"
+elif herdr plugin list 2>/dev/null | grep -q 'local.vim-navigator'; then
+  info "vim-navigator already installed"
+else
+  run herdr plugin install --yes bojackduy/nvim-herdr-navigation/herdr-vim-navigator
+  info "installed vim-navigator"
+fi
+
 step "Window manager services"
 if [ "$SKIP_SERVICES" = 1 ]; then
   info "skipped (--no-services)"
