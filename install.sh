@@ -74,6 +74,17 @@ link() {
     return
   fi
 
+  # A parent directory symlinked into the repo makes the target the source
+  # itself; backing it up and linking would leave a self-referencing symlink.
+  local parent
+  parent="$(cd "$(dirname "$target")" 2>/dev/null && pwd -P)"
+  if [ -n "$parent" ] && [ "$parent/$(basename "$target")" = "$(cd "$(dirname "$src")" && pwd -P)/$(basename "$src")" ]; then
+    SKIPPED=$((SKIPPED + 1))
+    SKIPPED_PATHS+=("$target")
+    info "skipped $target: $(dirname "$target") is a symlink into this repo; replace it with a real directory"
+    return
+  fi
+
   if [ -L "$target" ]; then
     # Tolerate a trailing slash on an existing link target.
     current="$(readlink "$target")"
