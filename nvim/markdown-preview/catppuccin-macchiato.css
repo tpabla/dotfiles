@@ -27,7 +27,7 @@
   --rosewater: #f4dbd6;
 
   /* Layout */
-  --content-max-width: 1400px;
+  --content-max-width: none;
 }
 
 html, body {
