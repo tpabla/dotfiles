@@ -1,0 +1,10 @@
+# herdr plugins installed by install.sh, one per line.
+#
+#   owner/repo[/subdir][@ref]   GitHub plugin; @ref pins a tag, branch or commit
+#   ./path                      local plugin, relative to this directory, linked in place
+#
+# Already-installed plugins are left alone, so bumping a ref needs a manual
+# `herdr plugin install --ref <ref> <spec>`.
+
+# Vim-aware ctrl+h/j/k/l, used by the [[keys.command]] bindings in config.toml.
+bojackduy/nvim-herdr-navigation/herdr-vim-navigator@7798a2f027465698cb1a51695327e138319f61f3

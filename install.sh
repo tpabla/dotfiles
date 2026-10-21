@@ -244,15 +244,58 @@ else
 fi
 
 step "herdr plugins"
-# config.toml binds ctrl+h/j/k/l to local.vim-navigator actions, which do
-# nothing until the plugin is installed.
+# herdr has no way to declare plugins in config.toml, so herdr/plugins.txt
+# lists them and anything missing is installed here.
+PLUGIN_LIST="$DOTFILES/herdr/plugins.txt"
 if ! command -v herdr >/dev/null 2>&1; then
   info "herdr not installed, skipping"
-elif herdr plugin list 2>/dev/null | grep -q 'local.vim-navigator'; then
-  info "vim-navigator already installed"
+elif [ ! -f "$PLUGIN_LIST" ]; then
+  info "no herdr/plugins.txt, skipping"
 else
-  run herdr plugin install --yes bojackduy/nvim-herdr-navigation/herdr-vim-navigator
-  info "installed vim-navigator"
+  # herdr prints an install preview; keep it only when the command fails.
+  herdr_plugin() {
+    local done_msg="$1" out; shift
+    if [ "$DRY_RUN" = 1 ]; then info "would: herdr plugin $*"; return; fi
+    if out="$(herdr plugin "$@" 2>&1)"; then info "$done_msg"
+    else info "failed: herdr plugin $*"; printf '%s\n' "$out" | sed 's/^/    /'; fi
+  }
+  installed="$(herdr plugin list 2>/dev/null)"
+  wanted=()
+  while read -r line; do
+    line="${line%%#*}"
+    line="${line%"${line##*[![:space:]]}"}"
+    [ -n "$line" ] || continue
+    case "$line" in
+      ./*)
+        path="$DOTFILES/herdr/${line#./}"
+        wanted+=("[local:$path]")
+        if printf '%s\n' "$installed" | grep -qF "[local:$path]"; then
+          info "$line already linked"
+        else
+          herdr_plugin "linked $line" link "$path"
+        fi
+        ;;
+      *)
+        spec="${line%@*}" ref=""
+        [ "$spec" != "$line" ] && ref="${line##*@}"
+        wanted+=("[github:$spec@")
+        if printf '%s\n' "$installed" | grep -qF "[github:$spec@"; then
+          info "$spec already installed"
+        else
+          herdr_plugin "installed $spec" install --yes ${ref:+--ref "$ref"} "$spec"
+        fi
+        ;;
+    esac
+  done < "$PLUGIN_LIST"
+
+  # Report, never remove, plugins that were installed by hand.
+  while read -r entry; do
+    known=0
+    for w in "${wanted[@]}"; do
+      case "$entry" in *"$w"*) known=1 ;; esac
+    done
+    [ "$known" = 1 ] || info "not in plugins.txt: ${entry#- }"
+  done < <(printf '%s\n' "$installed" | grep '^- ')
 fi
 
 step "Summary"
