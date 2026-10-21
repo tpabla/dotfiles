@@ -143,8 +143,6 @@ Two caveats:
 
 `agent-status-hook.sh` is a generic writer (`<agent> <working|done|wait>`), so any other agent can be wired up the same way without new code.
 
-> herdr's own pi integration listens for an `agent_settled` event that pi 0.69.0 does not emit, so under herdr pi tends to stay stuck on `working` after a turn ends. This extension uses `agent_end`, which does exist.
-
 ## Agent configuration
 
 Global instructions and settings for each agent, so a fresh machine gets the same behaviour:
@@ -175,59 +173,6 @@ Three latent bugs in the previous config were fixed while adding this — the se
 Load order in `tmux.conf` matters and is not arbitrary: `catppuccin.tmux` runs first so its module variables exist, the status line is then baked with `set -agF`, and tpm runs afterwards so `tmux-cpu` and `tmux-battery` can substitute their placeholders into that baked string. Reordering these breaks the CPU and battery segments.
 
 `tmux-net-speed` is deliberately not used — it supports Linux only, so RAM is shown via `tmux-cpu` instead.
-
-## herdr
-
-[herdr](https://herdr.dev) is a tmux-like, agent-aware terminal multiplexer. It is kept alongside tmux rather than replacing it, so either can be used.
-
-Only `herdr/config.toml` is linked, not the whole directory — herdr keeps its sockets, logs, and session state in `~/.config/herdr` and would write them into this repo if the directory were symlinked.
-
-### Install
-
-herdr is not in the `Brewfile` on purpose. The official installer puts it in `~/.local/bin` and self-updates with `herdr update`; a `brew install herdr` would land in `/opt/homebrew/bin`, which comes first on `$PATH` and would shadow it with a separately-versioned copy.
-
-```sh
-curl -fsSL https://herdr.dev/install.sh | sh
-```
-
-### Setup
-
-```sh
-ln -s /path/to/dotfiles/herdr/config.toml ~/.config/herdr/config.toml
-herdr config check          # validate
-herdr server reload-config  # apply to a running server
-```
-
-### Config
-
-Prefix is `ctrl+a`, matching `tmux.conf` on a personal machine. Unlike tmux there is no `$WORK` conditional — herdr's `prefix` takes a single chord, not a list — so the work machine's `ctrl+b` is not available. `ctrl+b` is herdr's own default if that ever needs to be flipped.
-
-Carried over from `tmux/tmux.conf`:
-
-| tmux | herdr |
-| --- | --- |
-| `bind h/j/k/l` pane focus | `prefix+h/j/k/l` |
-| `bind J/K` swap-pane | `prefix+shift+h/j/k/l` (built in) |
-| splits in `#{pane_current_path}` | `terminal.new_cwd = "follow"` |
-| `copy-mode-vi` | `prefix+[`, vim keys, `v` select, `y` copy (built in) |
-| `set -g mouse on` | `ui.mouse_capture` |
-| `set -g set-clipboard on` | `ui.copy_on_select` |
-| `status-position bottom` | `ui.tab_bar_position = "bottom"` |
-| catppuccin macchiato | `theme.name` + `[theme.custom]` overrides |
-| catppuccin status modules | `ui.tab_bar_right` + `ui.window_title` |
-| tmux-resurrect / tmux-continuum | `session.resume_agents_on_restore` (built in) |
-| `@resurrect-capture-pane-contents` | `experimental.pane_history` |
-| kitty `allow-passthrough` | `experimental.kitty_graphics` |
-| `allow-rename off` | manual names by default (`prefix+shift+t` / `prefix+shift+p`) |
-
-Note that herdr's split names are inverted relative to tmux's: `split_vertical` (`prefix+v`) opens a pane to the **right**, `split_horizontal` (`prefix+-`) opens one **below**.
-
-### What does not carry over
-
-- **`vim-tmux-navigator`.** herdr has no equivalent of the `is_vim` shell check, so a bare `ctrl+h` binding would be swallowed unconditionally and never reach nvim. Pane focus is therefore prefix-only. No nvim change is needed: outside tmux `$TMUX` is unset and vim-tmux-navigator falls back to plain `wincmd`, so `ctrl+h/j/k/l` still move between nvim splits.
-- **`main-vertical` layout, `main-pane-width 65%`, and `prefix Enter` promote-to-main.** herdr has no named layouts and no main-slot concept. The closest workflow is manual splits plus directional swaps (`prefix+shift+h/j/k/l`) and resize mode (`prefix+r`).
-
-`prefix+?` lists every active binding live.
 
 ## claude
 

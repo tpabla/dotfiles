@@ -56,8 +56,7 @@ export default function (pi) {
     report("working");
   });
 
-  // agent_end is the terminal event in pi 0.69.0. (herdr's own pi integration
-  // listens for "agent_settled", which this version never emits.)
+  // agent_end is the terminal event in pi 0.69.0.
   pi.on("agent_end", () => {
     report("done");
   });

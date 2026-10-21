@@ -15,6 +15,7 @@ function rust_book
 end
 
 fish_vi_key_bindings
+fish_config theme choose "Catppuccin Macchiato"
 
 bind -M insert \cd delete-char  # For vi insert mode
 bind -M default \cd delete-char # For vi normal mode
@@ -30,9 +31,15 @@ set -x DOCKERPATH $HOME/.docker/bin
 
 set -x PAGER less -R
 
+
+# Keep the tmux socket out of /tmp, which macOS cleans out from under long-running servers
+set -gx TMUX_TMPDIR $HOME/.local/state/tmux
+mkdir -p $TMUX_TMPDIR
+
 set -x ROKU_DEV_TARGET 192.168.50.38
 set -x ROKU_USERNAME rokudev
 set -x ROKU_PASSWORD roku123
+
 
 set -gx PATH /opt/homebrew/bin $PATH $HOME/.local/bin ~/Library/Android/sdk/platform-tools $PWD/node_modules/.bin ~/.tools
 
