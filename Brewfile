@@ -1,5 +1,3 @@
-tap "asmvik/formulae"
-
 # Shell and terminal
 brew "fish"
 cask "kitty"
@@ -18,7 +16,3 @@ brew "gh"
 brew "jq"
 brew "lazygit"
 brew "ripgrep"
-
-# Window management
-brew "asmvik/formulae/yabai"
-brew "asmvik/formulae/skhd"

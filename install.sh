@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Installs dotfiles: Homebrew packages, config symlinks, tmux plugin manager,
-# and the yabai/skhd services. Safe to rerun; never clobbers without asking.
+# and herdr plugins. Safe to rerun; never clobbers without asking.
 set -uo pipefail
 
 DOTFILES="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -8,7 +8,6 @@ STAMP="$(date +%Y%m%d%H%M%S)"
 
 DRY_RUN=0
 SKIP_BREW=0
-SKIP_SERVICES=0
 CONFLICT_MODE=ask   # ask | backup | skip
 SKILLS_MODE=ask     # ask | all | none
 
@@ -21,7 +20,6 @@ usage: ./install.sh [options]
   --all-skills      Install every skill in skills/ without asking
   --skip-conflicts  Leave every conflict untouched instead of prompting
   --no-brew         Skip `brew bundle`
-  --no-services     Skip starting the yabai/skhd services
   -h, --help        Show this message
 
 Each skill in skills/ is confirmed individually before it is installed at the
@@ -39,7 +37,6 @@ while [ $# -gt 0 ]; do
     --all-skills) SKILLS_MODE=all ;;
     --skip-conflicts) CONFLICT_MODE=skip ;;
     --no-brew) SKIP_BREW=1 ;;
-    --no-services) SKIP_SERVICES=1 ;;
     -h|--help) usage; exit 0 ;;
     *) echo "unknown option: $1" >&2; usage >&2; exit 2 ;;
   esac
@@ -127,24 +124,6 @@ if [ "$SKIP_BREW" = 1 ]; then
 elif ! command -v brew >/dev/null 2>&1; then
   info "Homebrew not found, skipping. Install it from https://brew.sh then rerun."
 else
-  # yabai and skhd come from a third-party tap, which recent Homebrew refuses to
-  # load until it is explicitly trusted.
-  for tap in asmvik/formulae; do
-    trusted="$(brew tap-info --json "$tap" 2>/dev/null | grep -c '"trusted":true')"
-    if [ "$trusted" = "0" ]; then
-      info "tap $tap is not trusted; Homebrew will refuse to install from it"
-      if [ "$CONFLICT_MODE" = ask ]; then
-        read -r -p "    run \`brew trust $tap\`? [y/N] " reply </dev/tty
-        case "$reply" in
-          y|Y) run brew tap "$tap" && run brew trust "$tap" ;;
-          *) info "left untrusted; yabai/skhd will not install" ;;
-        esac
-      else
-        info "run \`brew trust $tap\` yourself, then rerun"
-      fi
-    fi
-  done
-
   if [ "$DRY_RUN" = 1 ]; then
     brew bundle check --file "$DOTFILES/Brewfile" || true
   else
@@ -157,8 +136,6 @@ link fish  "$HOME/.config/fish"
 link kitty "$HOME/.config/kitty"
 link nvim  "$HOME/.config/nvim"
 link tmux  "$HOME/.config/tmux"
-link yabai "$HOME/.config/yabai"
-link skhd  "$HOME/.config/skhd"
 link herdr/config.toml "$HOME/.config/herdr/config.toml"
 
 # Global agent instructions. Kept per-agent because the wording differs
@@ -200,14 +177,6 @@ if [ -f "$DOTFILES/agents/agent-status-hook.sh" ] && [ ! -x "$DOTFILES/agents/ag
   info "made agent-status-hook.sh executable"
 else
   info "agent-status-hook.sh already executable"
-fi
-
-step "yabai config permissions"
-if [ -f "$DOTFILES/yabai/yabairc" ] && [ ! -x "$DOTFILES/yabai/yabairc" ]; then
-  run chmod +x "$DOTFILES/yabai/yabairc"
-  info "made yabairc executable"
-else
-  info "yabairc already executable"
 fi
 
 step "Agent status hooks"
@@ -273,23 +242,6 @@ elif herdr plugin list 2>/dev/null | grep -q 'local.vim-navigator'; then
 else
   run herdr plugin install --yes bojackduy/nvim-herdr-navigation/herdr-vim-navigator
   info "installed vim-navigator"
-fi
-
-step "Window manager services"
-if [ "$SKIP_SERVICES" = 1 ]; then
-  info "skipped (--no-services)"
-else
-  for svc in yabai skhd; do
-    if ! command -v "$svc" >/dev/null 2>&1; then
-      info "$svc not installed, skipping"
-    elif pgrep -x "$svc" >/dev/null 2>&1; then
-      info "$svc already running"
-    else
-      run "$svc" --start-service
-      info "started $svc"
-    fi
-  done
-  info "grant Accessibility permission to yabai and skhd in System Settings if prompted"
 fi
 
 step "Summary"
