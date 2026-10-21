@@ -31,6 +31,10 @@ set -x DOCKERPATH $HOME/.docker/bin
 
 set -x PAGER less -R
 
+# Keep the tmux socket out of /tmp, which macOS cleans out from under long-running servers
+set -gx TMUX_TMPDIR $HOME/.local/state/tmux
+mkdir -p $TMUX_TMPDIR
+
 set -gx PATH /opt/homebrew/bin $PATH $HOME/.local/bin ~/Library/Android/sdk/platform-tools $PWD/node_modules/.bin ~/.tools
 
 alias unlock-keychain="security unlock-keychain ~/Library/Keychains/login.keychain-db"
