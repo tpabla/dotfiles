@@ -260,6 +260,13 @@ else
     else info "failed: herdr plugin $*"; printf '%s\n' "$out" | sed 's/^/    /'; fi
   }
   installed="$(herdr plugin list 2>/dev/null)"
+  # Prints the `herdr plugin list` block (entry line plus its indented lines) matching $1.
+  plugin_block() {
+    printf '%s\n' "$installed" | awk -v m="$1" '/^- / { show = index($0, m) > 0 } show'
+  }
+  # A registered plugin whose files are gone still lists, but with this warning.
+  plugin_broken() { printf '%s\n' "$1" | grep -q 'manifest unavailable'; }
+  plugin_id() { printf '%s\n' "$1" | sed -n 's/^- \([^ ]*\) .*/\1/p'; }
   wanted=()
   while read -r line; do
     line="${line%%#*}"
@@ -269,20 +276,28 @@ else
       ./*)
         path="$DOTFILES/herdr/${line#./}"
         wanted+=("[local:$path]")
-        if printf '%s\n' "$installed" | grep -qF "[local:$path]"; then
-          info "$line already linked"
-        else
+        block="$(plugin_block "[local:$path]")"
+        if [ -z "$block" ]; then
           herdr_plugin "linked $line" link "$path"
+        elif plugin_broken "$block"; then
+          herdr_plugin "unlinked broken $(plugin_id "$block")" unlink "$(plugin_id "$block")"
+          herdr_plugin "relinked $line" link "$path"
+        else
+          info "$line already linked"
         fi
         ;;
       *)
         spec="${line%@*}" ref=""
         [ "$spec" != "$line" ] && ref="${line##*@}"
         wanted+=("[github:$spec@")
-        if printf '%s\n' "$installed" | grep -qF "[github:$spec@"; then
-          info "$spec already installed"
-        else
+        block="$(plugin_block "[github:$spec@")"
+        if [ -z "$block" ]; then
           herdr_plugin "installed $spec" install --yes ${ref:+--ref "$ref"} "$spec"
+        elif plugin_broken "$block"; then
+          herdr_plugin "removed broken $(plugin_id "$block")" uninstall "$(plugin_id "$block")"
+          herdr_plugin "reinstalled $spec" install --yes ${ref:+--ref "$ref"} "$spec"
+        else
+          info "$spec already installed"
         fi
         ;;
     esac
