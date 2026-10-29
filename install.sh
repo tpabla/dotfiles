@@ -292,10 +292,10 @@ else
         wanted+=("[github:$spec@")
         block="$(plugin_block "[github:$spec@")"
         if [ -z "$block" ]; then
-          herdr_plugin "installed $spec" install --yes ${ref:+--ref "$ref"} "$spec"
+          herdr_plugin "installed $spec" install "$spec" ${ref:+--ref "$ref"} --yes
         elif plugin_broken "$block"; then
           herdr_plugin "removed broken $(plugin_id "$block")" uninstall "$(plugin_id "$block")"
-          herdr_plugin "reinstalled $spec" install --yes ${ref:+--ref "$ref"} "$spec"
+          herdr_plugin "reinstalled $spec" install "$spec" ${ref:+--ref "$ref"} --yes
         else
           info "$spec already installed"
         fi

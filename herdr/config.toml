@@ -7,6 +7,10 @@ focus_pane_up = ""
 focus_pane_right = ""
 split_horizontal = "prefix+double_quote"
 split_vertical = "prefix+percent"
+navigate_pane_down = ""
+navigate_pane_up = ""
+navigate_workspace_down = ["j", "down"]
+navigate_workspace_up = ["k", "up"]
 
 [[keys.command]]
 key = "ctrl+h"
