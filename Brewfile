@@ -16,3 +16,7 @@ brew "gh"
 brew "jq"
 brew "lazygit"
 brew "ripgrep"
+
+# Mermaid diagrams in nvim markdown (snacks.image)
+brew "imagemagick"
+brew "mermaid-cli"
