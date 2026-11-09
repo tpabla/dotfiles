@@ -46,6 +46,38 @@ local function mermaid_args(scale, bg)
     }
 end
 
+-- Pixel size of a PNG from its IHDR header, or nil
+local function png_size(path)
+    local f = io.open(path, "rb")
+    if not f then return nil end
+    local head = f:read(24)
+    f:close()
+    if not head or #head < 24 or head:sub(1, 8) ~= "\137PNG\r\n\26\n" then return nil end
+    local w1, w2, w3, w4, h1, h2, h3, h4 = head:byte(17, 24)
+    return w1 * 16777216 + w2 * 65536 + w3 * 256 + w4, h1 * 16777216 + h2 * 65536 + h3 * 256 + h4
+end
+
+-- Snacks sends PNGs unconverted and herdr drops ones that are too large. A PNG
+-- bigger than the terminal is handed to snacks as a symlink without the .png
+-- extension, so it goes through the magick step that scales it down.
+local function fit_png(src)
+    if type(src) ~= "string" or not src:match("%.png$") then return src end
+    local stat = vim.uv.fs_stat(src)
+    local w, h = png_size(src)
+    local term = Snacks.image.terminal.size()
+    if not (stat and w) or (w <= term.width and h <= term.height) then return src end
+    local cache = Snacks.image.config.cache
+    -- snacks caches by source path; keying the link on the terminal size too
+    -- re-scales after a resize instead of reusing a smaller conversion
+    local key = table.concat({ src, stat.mtime.sec, term.width, term.height }, ":")
+    local link = ("%s/%s.large"):format(cache, vim.fn.sha256(key):sub(1, 16))
+    if not vim.uv.fs_lstat(link) then
+        vim.fn.mkdir(cache, "p")
+        vim.uv.fs_symlink(src, link)
+    end
+    return link
+end
+
 -- Source of the mermaid block under the cursor, or nil
 local function mermaid_at_cursor()
     local row = vim.api.nvim_win_get_cursor(0)[1] - 1
@@ -317,6 +349,11 @@ return {
             -- snacks sets images up on the first file read, so a markdown buffer
             -- built in memory (e.g. todo-ai slides) would never get diagrams
             require("snacks.image").setup()
+            local convert = Snacks.image.convert.convert
+            Snacks.image.convert.convert = function(o)
+                o.src = fit_png(o.src)
+                return convert(o)
+            end
         end,
         init = function()
             vim.api.nvim_create_user_command("DiagramView", view_diagram,
@@ -364,7 +401,16 @@ return {
                         vim.schedule(function() sync(p.buf) end)
                     end,
                 },
-                convert = { mermaid = function() return mermaid_args() end },
+                convert = {
+                    mermaid = function() return mermaid_args() end,
+                    -- Scale rasters to the terminal instead of 1920x1080: nothing larger can show
+                    magick = {
+                        default = function()
+                            local t = Snacks.image.terminal.size()
+                            return { "{src}[0]", "-scale", ("%dx%d>"):format(t.width, t.height) }
+                        end,
+                    },
+                },
             },
         },
     },
