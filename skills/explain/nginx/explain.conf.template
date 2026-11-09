@@ -1,0 +1,24 @@
+server {
+    listen 80;
+    server_name _;
+    root __EXPLAIN_HOME__;
+    charset utf-8;
+
+    location = / {
+        return 302 /docs/;
+    }
+
+    location /docs/ {
+        index index.html;
+        try_files $uri $uri/ =404;
+    }
+
+    # Docs change often; always revalidate so links show the latest version.
+    location ~* \.html$ {
+        add_header Cache-Control "no-cache";
+    }
+
+    location /docs/_assets/vendor/ {
+        add_header Cache-Control "public, max-age=604800";
+    }
+}

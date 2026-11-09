@@ -56,18 +56,20 @@ vim.o.backup = false
 vim.o.winborder = "rounded"
 vim.cmd('filetype plugin indent on')
 
--- clipboard
-vim.g.clipboard = {
-  name = 'OSC 52',
-  copy = {
-    ['+'] = require('vim.ui.clipboard.osc52').copy('+'),
-    ['*'] = require('vim.ui.clipboard.osc52').copy('*'),
-  },
-  paste = {
-    ['+'] = require('vim.ui.clipboard.osc52').paste('+'),
-    ['*'] = require('vim.ui.clipboard.osc52').paste('*'),
-  },
-}
+-- clipboard: OSC 52 only over SSH; locally nvim uses pbcopy/pbpaste
+if os.getenv('SSH_TTY') then
+  local function paste()
+    return { vim.fn.split(vim.fn.getreg(''), '\n'), vim.fn.getregtype('') }
+  end
+  vim.g.clipboard = {
+    name = 'OSC 52',
+    copy = {
+      ['+'] = require('vim.ui.clipboard.osc52').copy('+'),
+      ['*'] = require('vim.ui.clipboard.osc52').copy('*'),
+    },
+    paste = { ['+'] = paste, ['*'] = paste },
+  }
+end
 
 -- Set window borders to white
 vim.api.nvim_set_hl(0, 'FloatBorder', { fg = '#ffffff' })
@@ -112,7 +114,10 @@ vim.o.autoread = true
 -- Check for file changes every 500ms
 local timer = vim.loop.new_timer()
 timer:start(500, 500, vim.schedule_wrap(function()
-  vim.cmd('checktime')
+  -- checktime is not allowed in the command-line window (q:)
+  if vim.fn.getcmdwintype() == '' then
+    vim.cmd('checktime')
+  end
 end))
 
 -- custom mapping for plugins

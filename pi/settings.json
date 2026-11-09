@@ -2,6 +2,9 @@
   "defaultModel": "gpt-5.4",
   "defaultProvider": "openai-codex",
   "defaultThinkingLevel": "off",
-  "lastChangelogVersion": "0.84.4",
-  "theme": "dark"
+  "lastChangelogVersion": "1.4.0",
+  "theme": "dark",
+  "enabledModels": [
+    "omlx/Qwen3.8-Flash-Next-oQ4e-mtp"
+  ]
 }

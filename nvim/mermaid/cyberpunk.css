@@ -1,0 +1,38 @@
+/* Cyberpunk pastel for mermaid. Colours carry meaning:
+   user pink, service cyan, container violet, component blue, store mint,
+   queue orange, external yellow (dashed), error coral, ok lime, focus magenta.
+   Unclassed flowchart nodes cycle the palette so neighbours differ. */
+
+.node:nth-child(12n+1) :is(.label-container, .label-container > path) { stroke: #ff8ad8 !important; fill: #3d2240 !important; }
+.node:nth-child(12n+2) :is(.label-container, .label-container > path) { stroke: #7fe7ff !important; fill: #1d3a46 !important; }
+.node:nth-child(12n+3) :is(.label-container, .label-container > path) { stroke: #c4a7ff !important; fill: #2f2a4d !important; }
+.node:nth-child(12n+4) :is(.label-container, .label-container > path) { stroke: #8affc1 !important; fill: #1f3d33 !important; }
+.node:nth-child(12n+5) :is(.label-container, .label-container > path) { stroke: #ffc38a !important; fill: #40301f !important; }
+.node:nth-child(12n+6) :is(.label-container, .label-container > path) { stroke: #f9f28b !important; fill: #3c3a20 !important; }
+.node:nth-child(12n+7) :is(.label-container, .label-container > path) { stroke: #8ab4ff !important; fill: #22304d !important; }
+.node:nth-child(12n+8) :is(.label-container, .label-container > path) { stroke: #ff9a9a !important; fill: #402828 !important; }
+.node:nth-child(12n+9) :is(.label-container, .label-container > path) { stroke: #6ef2d8 !important; fill: #1b3d3a !important; }
+.node:nth-child(12n+10) :is(.label-container, .label-container > path) { stroke: #e0b3ff !important; fill: #36294a !important; }
+.node:nth-child(12n+11) :is(.label-container, .label-container > path) { stroke: #c8ff8a !important; fill: #33401f !important; }
+.node:nth-child(12n+12) :is(.label-container, .label-container > path) { stroke: #ffb3e6 !important; fill: #402a3a !important; }
+
+.node.user :is(.label-container, .label-container > path) { stroke: #ff8ad8 !important; fill: #3d2240 !important; }
+.node.service :is(.label-container, .label-container > path) { stroke: #7fe7ff !important; fill: #1d3a46 !important; }
+.node.container :is(.label-container, .label-container > path) { stroke: #c4a7ff !important; fill: #2f2a4d !important; }
+.node.component :is(.label-container, .label-container > path) { stroke: #8ab4ff !important; fill: #22304d !important; }
+.node.store :is(.label-container, .label-container > path) { stroke: #8affc1 !important; fill: #1f3d33 !important; }
+.node.queue :is(.label-container, .label-container > path) { stroke: #ffc38a !important; fill: #40301f !important; }
+.node.external :is(.label-container, .label-container > path) { stroke: #f9f28b !important; fill: #3c3a20 !important; }
+.node.error :is(.label-container, .label-container > path) { stroke: #ff9a9a !important; fill: #402828 !important; }
+.node.ok :is(.label-container, .label-container > path) { stroke: #c8ff8a !important; fill: #33401f !important; }
+.node.external :is(.label-container, .label-container > path) { stroke-dasharray: 6 4 !important; }
+.node.focus :is(.label-container, .label-container > path) { stroke: #ff5cf0 !important; stroke-width: 3.5px !important; fill: #4a1f4a !important; }
+.nodeLabel, .nodeLabel p, .label text { color: #f3eaff !important; fill: #f3eaff !important; }
+.cluster rect { stroke: #c4a7ff !important; stroke-dasharray: 5 5; fill: #22203a !important; }
+.cluster-label, .cluster-label p { color: #e0b3ff !important; }
+.edgeLabel, .edgeLabel p, .edgeLabel rect { background-color: #1a1a2e !important; color: #f3eaff !important; fill: #1a1a2e !important; }
+
+/* C4 relationships: mermaid hard-codes #444444, invisible on dark */
+[stroke="#444444"] { stroke: #c4a7ff !important; }
+text[fill="#444444"] { fill: #f3eaff !important; }
+text[fill="#444444"] { paint-order: stroke; stroke: #1a1a2e; stroke-width: 5px; stroke-linejoin: round; }
