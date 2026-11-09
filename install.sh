@@ -142,6 +142,18 @@ else
   fi
 fi
 
+step "Mermaid renderer"
+# Homebrew's mermaid-cli skips puppeteer's postinstall, so mmdc has no browser
+# to render with. Its bundled installer fetches the matching headless shell;
+# rerun after `brew upgrade mermaid-cli`.
+if ! command -v brew >/dev/null 2>&1 || ! brew list mermaid-cli >/dev/null 2>&1; then
+  info "mermaid-cli not installed, skipping"
+else
+  PUPPETEER_INSTALL="$(brew --prefix mermaid-cli)/libexec/lib/node_modules/@mermaid-js/mermaid-cli/node_modules/puppeteer/install.mjs"
+  run env PUPPETEER_CHROME_SKIP_DOWNLOAD=true PUPPETEER_FIREFOX_SKIP_DOWNLOAD=true \
+    "$(brew --prefix node)/bin/node" "$PUPPETEER_INSTALL"
+fi
+
 step "Config symlinks"
 link fish  "$HOME/.config/fish"
 link kitty "$HOME/.config/kitty"
