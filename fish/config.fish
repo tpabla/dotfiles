@@ -1,5 +1,5 @@
 # The following lines were added by Docker Desktop to add commands to your PATH.
-export PATH="$PATH:/Users/taran/.docker/bin"
+fish_add_path -a $HOME/.docker/bin
 # End of Docker Desktop section.
 
 function vim
@@ -49,6 +49,8 @@ alias sync 'git fetch origin main:main; and echo "sync complete: main at "(git r
 # Hermes Agent — ensure ~/.local/bin is on PATH
 fish_add_path "$HOME/.local/bin"
 
+set -gx PNPM_HOME $HOME/Library/pnpm
+fish_add_path $PNPM_HOME
 
-# Added by Antigravity CLI installer
-set -gx PATH "/Users/taran/.local/bin" $PATH
+# Machine-specific settings, not tracked
+test -f ~/.config/fish/local.fish; and source ~/.config/fish/local.fish
