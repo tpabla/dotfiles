@@ -68,6 +68,24 @@ ln -s /path/to/dotfiles/nvim ~/.config/nvim
 
 Plugins will install automatically on first launch via lazy.nvim.
 
+### Diagrams
+
+Mermaid blocks in markdown render as colour-coded images (snacks.image, theme in `nvim/mermaid/`). Needs kitty, herdr's `kitty_graphics = true`, and `imagemagick` + `mermaid-cli` from the Brewfile. `,dv` opens the diagram under the cursor in its own tab.
+
+### todo-ai
+
+[todo-ai](https://github.com/tpabla/todo-ai) is loaded from `~/Repos/todo-ai` and is not cloned by `install.sh`; without it nvim starts normally and its commands say it is missing. To set it up:
+
+```sh
+git clone https://github.com/tpabla/todo-ai ~/Repos/todo-ai
+ln -s ~/Repos/todo-ai/bin/todo-ai ~/.local/bin/todo-ai          # the CLI agents run
+mkdir -p ~/.agents/skills
+for s in neovim scan; do
+  ln -s ~/Repos/todo-ai/skills/$s ~/.claude/skills/$s           # Claude Code
+  ln -s ~/Repos/todo-ai/skills/$s ~/.agents/skills/$s           # pi, codex
+done
+```
+
 ## tmux
 
 ### Setup
