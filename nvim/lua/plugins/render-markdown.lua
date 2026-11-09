@@ -5,6 +5,7 @@
 -- block its source shows, with the live image below it.
 local ns = vim.api.nvim_create_namespace("diagram_source")
 local placements = setmetatable({}, { __mode = "k" })
+local updated = setmetatable({}, { __mode = "k" })
 
 local function cursor_inside(p)
     if vim.api.nvim_get_current_buf() ~= p.buf then return false end
@@ -27,14 +28,85 @@ local function hide_source(p)
     vim.api.nvim_buf_set_extmark(p.buf, ns, last, 0, { end_col = #lines[#lines], conceal = "" })
 end
 
+-- Snacks drops conversion errors for inline images, so a broken diagram would
+-- just show its source. Its error goes below the block and onto the line mmdc
+-- names as a diagnostic.
+local diag_ns = vim.api.nvim_create_namespace("diagram_error")
+local last_diags = {}
+
+-- mmdc's message without its stack trace, and the diagram line it names
+local function diagram_error(p)
+    local text = ""
+    for _, step in ipairs(p.img._convert and p.img._convert.steps or {}) do
+        if step.err then
+            text = step.proc and vim.trim(step.proc:err()) or ""
+            if text == "" then text = step.err end
+        end
+    end
+    local lines = {}
+    for _, l in ipairs(vim.split(text, "\n")) do
+        if l:match("^%s+at ") or l:match("%(.*:%d+:%d+%)$") then break end
+        if l ~= "" then table.insert(lines, (l:gsub("^Error: ", ""))) end
+    end
+    if #lines == 0 then lines = { "render failed" } end
+    return lines, tonumber(text:match("on line (%d+)"))
+end
+
+-- Snacks doesn't always close a failed placement once its block changes, and
+-- can hold more than one for the same block. It is only current while the
+-- block still holds the source it failed on (snacks writes that to img.src).
+local function is_current(p)
+    local f = io.open(p.img.src, "r")
+    if not f then return false end
+    local src = f:read("*a")
+    f:close()
+    local lines = vim.api.nvim_buf_get_lines(p.buf, p.opts.range[1], p.opts.range[3] - 1, false)
+    return vim.trim(table.concat(lines, "\n")) == vim.trim(src)
+end
+
+local function show_error(p)
+    local lines, line = diagram_error(p)
+    local first, last = p.opts.range[1] - 1, p.opts.range[3] - 1 -- fence rows
+    local virt = { { { "mermaid error: " .. lines[1], "DiagnosticError" } } }
+    for i = 2, #lines do table.insert(virt, { { "  " .. lines[i], "DiagnosticError" } }) end
+    -- on the last source line: virtual lines on a fence vanish when render-markdown hides it
+    local row = math.max(first, last - 1)
+    if row < vim.api.nvim_buf_line_count(p.buf) then
+        vim.api.nvim_buf_set_extmark(p.buf, ns, row, 0, { virt_lines = virt })
+    end
+    return {
+        lnum = line and math.max(first + 1, math.min(first + line, last - 1)) or first,
+        col = 0,
+        severity = vim.diagnostic.severity.ERROR,
+        source = "mermaid",
+        message = table.concat(lines, "\n"),
+    }
+end
+
 local function sync(buf)
     if not vim.api.nvim_buf_is_valid(buf) then return end
     vim.api.nvim_buf_clear_namespace(buf, ns, 0, -1)
+    local diags, shown = {}, {}
     for p in pairs(placements) do
-        if p.buf == buf and p.opts.type == "chart" and p.opts.range and p:ready() and not cursor_inside(p) then
-            hide_source(p)
+        if p.buf == buf and p.opts.type == "chart" and p.opts.range and not p.closed then
+            if p:ready() then
+                if not cursor_inside(p) then hide_source(p) end
+            elseif p.img:failed() and not shown[p.opts.range[1]] and is_current(p) then
+                shown[p.opts.range[1]] = true
+                table.insert(diags, show_error(p))
+            end
         end
     end
+    if not vim.deep_equal(diags, last_diags[buf]) then
+        last_diags[buf] = diags
+        vim.diagnostic.set(diag_ns, buf, diags)
+    end
+end
+
+local function sync_all()
+    local bufs = {}
+    for p in pairs(placements) do bufs[p.buf] = true end
+    for buf in pairs(bufs) do sync(buf) end
 end
 
 -- mmdc arguments for the cyberpunk theme; colours carry meaning (see mermaid/cyberpunk.css)
@@ -352,7 +424,22 @@ return {
             local convert = Snacks.image.convert.convert
             Snacks.image.convert.convert = function(o)
                 o.src = fit_png(o.src)
+                local done = o.on_done
+                o.on_done = function(c)
+                    if done then done(c) end
+                    if c:error() then vim.schedule(sync_all) end
+                end
                 return convert(o)
+            end
+            -- on_update_pre only sees diagrams that rendered; track failed ones too
+            local new = Snacks.image.placement.new
+            Snacks.image.placement.new = function(...)
+                local p = new(...)
+                if p.opts.type == "chart" then
+                    placements[p] = true
+                    vim.schedule(function() sync(p.buf) end)
+                end
+                return p
             end
         end,
         init = function()
@@ -396,7 +483,8 @@ return {
                     -- diagrams: source hidden by sync() above; math: snacks' own conceal
                     conceal = function(_, type) return type == "math" end,
                     on_update_pre = function(p)
-                        if placements[p] then return end
+                        if updated[p] then return end
+                        updated[p] = true
                         placements[p] = true
                         vim.schedule(function() sync(p.buf) end)
                     end,
