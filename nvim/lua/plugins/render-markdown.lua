@@ -17,9 +17,14 @@ end
 local function hide_source(p)
     local first, last = p.opts.range[1] - 1, p.opts.range[3] - 1 -- fence rows
     if last <= first then return end
+    -- A placement can outlive its text for a moment (e.g. a buffer whose
+    -- content was just replaced): only hide rows that are still its fences.
+    local lines = vim.api.nvim_buf_get_lines(p.buf, first, last + 1, false)
+    if #lines ~= last - first + 1 or not lines[1]:match("^%s*```") or not lines[#lines]:match("^%s*```") then
+        return
+    end
     vim.api.nvim_buf_set_extmark(p.buf, ns, first, 0, { end_row = last - 1, end_col = 0, conceal_lines = "" })
-    local fence = vim.api.nvim_buf_get_lines(p.buf, last, last + 1, false)[1] or ""
-    vim.api.nvim_buf_set_extmark(p.buf, ns, last, 0, { end_col = #fence, conceal = "" })
+    vim.api.nvim_buf_set_extmark(p.buf, ns, last, 0, { end_col = #lines[#lines], conceal = "" })
 end
 
 local function sync(buf)
@@ -307,6 +312,12 @@ return {
         "folke/snacks.nvim",
         priority = 1000,
         lazy = false,
+        config = function(_, opts)
+            require("snacks").setup(opts)
+            -- snacks sets images up on the first file read, so a markdown buffer
+            -- built in memory (e.g. todo-ai slides) would never get diagrams
+            require("snacks.image").setup()
+        end,
         init = function()
             vim.api.nvim_create_user_command("DiagramView", view_diagram,
                 { desc = "Open the mermaid diagram under the cursor large, in a new tab" })
