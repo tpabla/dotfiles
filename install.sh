@@ -22,8 +22,9 @@ usage: ./install.sh [options]
   --no-brew         Skip `brew bundle`
   -h, --help        Show this message
 
-Each skill in skills/ is confirmed individually before it is installed at the
-user level in ~/.claude/skills.
+Each skill (skills/, plus ~/Repos/todo-ai/skills when cloned) is confirmed
+individually before it is installed at the user level for every agent:
+~/.claude/skills for Claude Code, ~/.agents/skills for codex and pi.
 
 Existing paths are never deleted. A backup moves the current path to
 <name>.bak.<timestamp> alongside it, then creates the symlink.
@@ -62,12 +63,14 @@ info() { printf '  %s\n' "$1"; }
 step() { printf '\n== %s\n' "$1"; }
 run()  { if [ "$DRY_RUN" = 1 ]; then info "would: $*"; else "$@"; fi; }
 
-# link <source-relative-to-dotfiles> <absolute-target> [backup-path]
+# link <source> <absolute-target> [backup-path]
+# A relative source is resolved against the dotfiles repo.
 # A backup-path is needed when the target sits in a directory that is scanned
 # for content: a <name>.bak.<stamp> left inside ~/.claude/skills would be
 # loaded as a second, duplicate skill.
 link() {
-  local src="$DOTFILES/$1" target="$2" backup_override="${3:-}" current
+  local src="$1" target="$2" backup_override="${3:-}" current
+  case "$src" in /*) ;; *) src="$DOTFILES/$src" ;; esac
 
   if [ ! -e "$src" ]; then
     info "missing in repo, skipping: $1"
@@ -168,29 +171,56 @@ link codex/AGENTS.md  "$HOME/.codex/AGENTS.md"
 # pi rewrites this file itself (theme, lastChangelogVersion), so expect churn.
 link pi/settings.json "$HOME/.pi/agent/settings.json"
 
-# Skills land in ~/.claude/skills, where they apply to every project, so each one
-# is opt-in per run rather than linked wholesale.
-step "Claude skills"
+TODO_AI="$HOME/Repos/todo-ai"
+
+step "todo-ai"
+if [ -d "$TODO_AI" ]; then
+  link "$TODO_AI/bin/todo-ai" "$HOME/.local/bin/todo-ai"
+else
+  info "not cloned; to use it: git clone https://github.com/tpabla/todo-ai $TODO_AI, then rerun"
+fi
+
+# Claude Code reads only ~/.claude/skills (it merely imports ~/.agents/skills);
+# codex and pi read ~/.agents/skills. Every skill goes to both.
+SKILL_DIRS=("$HOME/.claude/skills" "$HOME/.agents/skills")
+
+skill_installed() {
+  local src="$1" dir current
+  for dir in "${SKILL_DIRS[@]}"; do
+    current="$(readlink "$dir/$(basename "$src")" 2>/dev/null)"
+    [ "${current%/}" = "$src" ] || return 1
+  done
+}
+
+# Skills apply to every project, so each one is opt-in per run rather than
+# linked wholesale.
+step "Skills"
 if [ "$SKILLS_MODE" = none ]; then
   info "skipped (no approval possible non-interactively; use --all-skills)"
 else
-  for skill in "$DOTFILES"/skills/*/; do
+  for skill in "$DOTFILES"/skills/*/ "$TODO_AI"/skills/*/; do
     [ -d "$skill" ] || continue
+    skill="${skill%/}"
     name="$(basename "$skill")"
-    target="$HOME/.claude/skills/$name"
-    if [ -L "$target" ] && [ "$(readlink "$target")" = "${DOTFILES}/skills/$name" ]; then
-      ALREADY=$((ALREADY + 1))
+    if skill_installed "$skill"; then
+      ALREADY=$((ALREADY + ${#SKILL_DIRS[@]}))
       continue
     fi
     if [ "$SKILLS_MODE" = ask ]; then
-      printf '  skill "%s" -> %s\n' "$name" "$target"
+      printf '  skill "%s" (%s)\n' "$name" "$skill"
       read -r -p "    install at the user level? [y/N] " reply </dev/tty
       case "$reply" in
         y|Y) ;;
-        *) SKIPPED=$((SKIPPED + 1)); SKIPPED_PATHS+=("$target"); info "declined $name"; continue ;;
+        *) info "declined $name"
+           for dir in "${SKILL_DIRS[@]}"; do
+             SKIPPED=$((SKIPPED + 1)); SKIPPED_PATHS+=("$dir/$name")
+           done
+           continue ;;
       esac
     fi
-    link "skills/$name" "$target" "$HOME/.claude/skill-backups/$name"
+    for dir in "${SKILL_DIRS[@]}"; do
+      link "$skill" "$dir/$name" "${dir%/skills}/skill-backups/$name"
+    done
   done
 fi
 

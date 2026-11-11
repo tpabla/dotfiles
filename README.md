@@ -12,7 +12,7 @@ cd ~/Personal/dotfiles
 
 `install.sh` installs the `Brewfile` packages, symlinks each config into `~/.config`, clones TPM, and installs the herdr plugins listed in `herdr/plugins.txt` (add a line there to manage another one; plugins installed by hand are reported, not removed). It is safe to rerun: symlinks that already point at this repo are left alone, and nothing is ever deleted.
 
-When a real file or directory already sits at a target path, the script stops and asks. Choosing **b** moves the existing path to `<name>.bak.<timestamp>` next to it and then links; choosing **s** leaves it untouched and reports it in the summary. Skills in `skills/` are confirmed one at a time, since they install at the user level in `~/.claude/skills` and apply to every project.
+When a real file or directory already sits at a target path, the script stops and asks. Choosing **b** moves the existing path to `<name>.bak.<timestamp>` next to it and then links; choosing **s** leaves it untouched and reports it in the summary. Skills are confirmed one at a time, since they install at the user level and apply to every project. Each goes to `~/.claude/skills` (Claude Code reads only this; it just offers to import `~/.agents/skills`) and `~/.agents/skills` (codex, pi).
 
 | Flag | Effect |
 | --- | --- |
@@ -38,7 +38,9 @@ What gets linked:
 | `claude/CLAUDE.md` | `~/.claude/CLAUDE.md` |
 | `codex/AGENTS.md` | `~/.codex/AGENTS.md` |
 | `pi/settings.json` | `~/.pi/agent/settings.json` |
-| `skills/<name>/` | `~/.claude/skills/<name>` |
+| `skills/<name>/` | `~/.claude/skills/<name>`, `~/.agents/skills/<name>` |
+| `~/Repos/todo-ai/bin/todo-ai` | `~/.local/bin/todo-ai` (when cloned) |
+| `~/Repos/todo-ai/skills/<name>/` | same as `skills/` (when cloned) |
 
 The sections below describe each config and its manual setup, if you would rather not run the script.
 
@@ -74,16 +76,11 @@ Mermaid blocks in markdown render as colour-coded images (snacks.image, theme in
 
 ### todo-ai
 
-[todo-ai](https://github.com/tpabla/todo-ai) is loaded from `~/Repos/todo-ai` and is not cloned by `install.sh`; without it nvim starts normally and its commands say it is missing. To set it up:
+[todo-ai](https://github.com/tpabla/todo-ai) is loaded from `~/Repos/todo-ai` and is not cloned by `install.sh`; without it nvim starts normally and its commands say it is missing. To set it up, clone it and rerun the installer, which links the `todo-ai` CLI and its skills:
 
 ```sh
 git clone https://github.com/tpabla/todo-ai ~/Repos/todo-ai
-ln -s ~/Repos/todo-ai/bin/todo-ai ~/.local/bin/todo-ai          # the CLI agents run
-mkdir -p ~/.agents/skills
-for s in neovim scan; do
-  ln -s ~/Repos/todo-ai/skills/$s ~/.claude/skills/$s           # Claude Code
-  ln -s ~/Repos/todo-ai/skills/$s ~/.agents/skills/$s           # pi, codex
-done
+./install.sh
 ```
 
 ## tmux
@@ -167,7 +164,7 @@ Global instructions and settings for each agent, so a fresh machine gets the sam
 | `claude/CLAUDE.md` | Global Claude Code instructions |
 | `codex/AGENTS.md` | Global Codex instructions (same rules, worded for Codex) |
 | `pi/settings.json` | pi default provider, model, and theme |
-| `skills/` | Claude skills, installed per-skill into `~/.claude/skills` |
+| `skills/` | Agent skills, installed per-skill into `~/.claude/skills` and `~/.agents/skills` |
 
 **`~/.codex/config.toml` is deliberately not in this repo** — it holds the WorkWeave OTEL ingest token, plus machine-local state like per-project `trust_level` entries. To version it, move the token to an environment variable and commit the redacted file.
 
