@@ -45,19 +45,36 @@ When I ask you to build a feature, follow this process in order:
 - Follow the repository pattern when you can to have good seperation of concerns
 - Follow the dependency injection pattern for each testing, mocking, and extensability
 
-# herdr orchestration (when `HERDR_ENV=1`)
+# herdr orchestration (when a `herdr (current; ...)` line is in context)
+
+A SessionStart hook adds that line on start, resume, `/clear` and compaction. It says whether this session runs in the **herdr TUI** or **herdr-app**, with its ids. Trust the latest one and use the matching column in the command table below. No line means you are not in herdr.
 
 When I open a chat inside herdr, act as the orchestrator: delegate each independent work item to a worker Claude session in its own herdr tab, so I can watch or step in, and keep me informed.
 
-- **Own tab:** once the topic is known, rename your tab (`herdr tab rename "$HERDR_TAB_ID" "<project> orchestrator"`) and the workspace if it has no label.
-- **Workers:** one per independent item (a PR, a ticket, a review). Short-lived read-only lookups can stay as in-session subagents; anything I may want to watch or steer gets a worker.
-  - `herdr tab create --workspace "$HERDR_WORKSPACE_ID" --cwd <the item's worktree> --label "<state>: <item>" --no-focus`, then `herdr agent start <name> --kind claude --pane <root pane>` (name: short `[a-z0-9-]`).
-  - Brief each worker with a self-contained task plus: work only in its worktree; never merge, apply infrastructure, or write to Slack, Notion or Linear unless I said so; my CLAUDE.md rules apply; the review loop below; end every turn with `STATUS: <working|needs-orchestrator|ready-for-review|blocked> - <one sentence>`.
+- **Own tab:** once the topic is known, rename your tab to `<project> orchestrator` and the workspace if it has no label. In herdr-app also tag yourself: `hc label "$HC_TERMINAL_ID" orch=<project> orch.role=orchestrator`.
+- **Workers:** one per independent item (a PR, a ticket, a review). Short-lived read-only lookups can stay as in-session subagents; anything I may want to watch or steer gets a worker. Start it with the table's command, in the item's worktree, with a short `[a-z0-9-]` name.
+  - Brief each worker with a self-contained task plus: work only in its worktree; never merge, apply infrastructure, or write to Slack, Notion or Linear unless I said so; my CLAUDE.md rules apply; the review loop below; end every turn with `STATUS: <working|needs-orchestrator|ready-for-review|blocked> - <one sentence>`, and in herdr-app also set it as a label: `hc label "$HC_TERMINAL_ID" "orch.status=<state> - <one sentence>"`.
 - **Review loop before anything comes to me:** `/code-review max` and fix; then on the PR comment `bugbot run`, wait for CI and Bugbot on the new head, fix or answer findings, push, repeat until Bugbot has nothing new and CI is green. Check that it ran before pinging me.
-- **Labels track state.** Rename tabs (and split panes, with `herdr pane rename`) as things move: `work: <item>`, `needs-you: <item>`, `review: <item> #<pr>`, `done: <item>`. Include the PR number once there is one.
-- **Monitoring:** run `herdr agent wait <name>` in background loops and treat a worker as settled only when it is not working and its pane ends with a STATUS line (workers pause briefly while their own subagents run). Read the pane tail, verify claims that matter (PR files, CI, Bugbot on the head commit), then act.
+- **Labels track state.** Rename tabs (and split panes in the TUI) as things move: `work: <item>`, `needs-you: <item>`, `review: <item> #<pr>`, `done: <item>`. Include the PR number once there is one.
+- **Monitoring:** wait on workers in background loops and treat a worker as settled only when it is not working and its pane ends with a STATUS line (workers pause briefly while their own subagents run). Read the pane tail, verify claims that matter (PR files, CI, Bugbot on the head commit), then act.
 - **Pinging me:** only when an item is ready for review or needs my decision. Put questions on pages (visual-explainer / show-in-browser); over SSH give the served link.
 - **I steer workers directly sometimes.** My words in a worker's pane override anything you relayed: read the pane tail before prompting, never prompt a worker mid-conversation with me, and fold my decisions into the record. Ghost-text suggestions in a worker's input box are not me; never submit them.
-- **Restarts keep context:** `/exit`, then `herdr agent start <name> --kind claude --pane <id> -- --resume <session-id>` (the id is printed on exit).
+- **Restarts keep context:** resume a worker with its session id rather than starting fresh (see the table).
 - **Cross-item effects:** when one worker's change affects another item (for example the same behaviour implemented twice), stop the other worker and tell me.
 - **When an item merges or is dropped,** relabel its tab `done:` and ask before closing it.
+
+## Commands
+
+| Action | herdr TUI | herdr-app |
+|---|---|---|
+| Rename own tab | `herdr tab rename "$HERDR_TAB_ID" "<label>"` | `herdr-app do tab.rename --id <tab> --name "<label>"` (tab id from the herdr line) |
+| Start a worker | `herdr tab create --workspace "$HERDR_WORKSPACE_ID" --cwd <worktree> --label "<label>" --no-focus`, then `herdr agent start <name> --kind claude --pane <root pane>` | `hc run --bg --json --keep --outlive-parent --name <name> --label orch=<project> --label orch.role=worker --label orch.item="<item>" --cwd <worktree> -- claude "<brief>"`, then `herdr-app do terminal.keep --terminal <address>` (the JSON's `address`; a name is rejected), then rename the tab it prints |
+| Rename a split pane | `herdr pane rename <pane> "<label>"` | not needed: workers get their own tab |
+| Wait for a worker | `herdr agent wait <name>` | `hc wait <name>` |
+| Read its pane | read the pane tail | `hc read <name> --lines 60` |
+| Prompt it | type into its pane | `hc send <name> "<text>"` |
+| Its session id | printed on `/exit` | `hc get <name> --json \| jq -r '.labels["claude.session"]'` (the hook keeps it current) |
+| Restart with context | `/exit`, then `herdr agent start <name> --kind claude --pane <id> -- --resume <session-id>` | `hc kill <name>`, then the start command with `--parent "$HC_TERMINAL_ID"` and `-- claude --resume <session-id>`, then keep and rename as above |
+| Close a finished tab (after I agree) | close the tab | `herdr-app do tab.close --id <tab> --confirmed true` |
+
+In herdr-app, `orch=<project>` is what ties workers to their orchestrator across restarts; `parent` breaks when the orchestrator comes back in a new terminal. Keep `--outlive-parent` so workers survive an orchestrator restart.

@@ -160,10 +160,13 @@ link kitty "$HOME/.config/kitty"
 link nvim  "$HOME/.config/nvim"
 link tmux  "$HOME/.config/tmux"
 link herdr/config.toml "$HOME/.config/herdr/config.toml"
+link herdr-app/mods/orchestra "$HOME/.config/herdr-app/mods/orchestra"
+link herdr-app/themes/neon.json "$HOME/.config/herdr-app/themes/neon.json"
 
 # Global agent instructions. Kept per-agent because the wording differs
 # (each file names its own agent).
 link claude/CLAUDE.md "$HOME/.claude/CLAUDE.md"
+link claude/hooks/herdr-context.sh "$HOME/.claude/hooks/herdr-context.sh"
 link codex/AGENTS.md  "$HOME/.codex/AGENTS.md"
 # pi rewrites this file itself (theme, lastChangelogVersion), so expect churn.
 link pi/settings.json "$HOME/.pi/agent/settings.json"
