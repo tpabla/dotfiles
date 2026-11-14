@@ -24,6 +24,8 @@ const KEYS_HELP = [
   ["/  esc", "filter, clear"],
   ["m", "maximize the panel"],
   ["ctrl-h j k l", "move to the next pane"],
+  ["cmd-.", "close a peek"],
+  ["cmd-shift-o", "show or hide this panel"],
 ];
 const SPINNER = ["◐", "◓", "◑", "◒"];
 const CODE = [["▬▬ ▬▬▬", "▬▬▬ ▬", "▬ ▬▬▬▬", "▬▬▬▬ ▬"], ["▬▬▬ ▬", "▬ ▬▬", "▬▬▬▬▬", "▬▬ ▬"], ["▬ ▬▬", "▬▬▬▬", "▬▬ ▬▬", "▬▬▬"]];

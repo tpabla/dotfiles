@@ -1,0 +1,4 @@
+node_modules/
+# written by herdr-app into every mod folder
+gpui-kit.d.ts
+jsconfig.json

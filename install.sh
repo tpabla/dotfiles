@@ -162,6 +162,9 @@ link tmux  "$HOME/.config/tmux"
 link herdr/config.toml "$HOME/.config/herdr/config.toml"
 link herdr-app/mods/orchestra "$HOME/.config/herdr-app/mods/orchestra"
 link herdr-app/themes/neon.json "$HOME/.config/herdr-app/themes/neon.json"
+link herdr-app/mods/vim-nav "$HOME/.config/herdr-app/mods/vim-nav"
+link herdr-app/layouts/main-vim-nav.json "$HOME/.config/herdr-app/layouts/main-vim-nav.json"
+link herdr-app/keys.json "$HOME/.config/herdr-app/keys.json"
 
 # Global agent instructions. Kept per-agent because the wording differs
 # (each file names its own agent).
