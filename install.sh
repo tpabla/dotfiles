@@ -169,7 +169,10 @@ link herdr-app/keys.json "$HOME/.config/herdr-app/keys.json"
 # Global agent instructions. Kept per-agent because the wording differs
 # (each file names its own agent).
 link claude/CLAUDE.md "$HOME/.claude/CLAUDE.md"
-link claude/hooks/herdr-context.sh "$HOME/.claude/hooks/herdr-context.sh"
+# herdr hooks live in the orch skill; every session uses herdr-context.sh, so they
+# are linked even when the skill itself is declined below.
+link skills/orch/hooks/herdr-context.sh "$HOME/.claude/hooks/herdr-context.sh"
+link skills/orch/hooks/orch-worker-activity.sh "$HOME/.claude/hooks/orch-worker-activity.sh"
 link codex/AGENTS.md  "$HOME/.codex/AGENTS.md"
 # pi rewrites this file itself (theme, lastChangelogVersion), so expect churn.
 link pi/settings.json "$HOME/.pi/agent/settings.json"
@@ -250,6 +253,15 @@ else
       ;;
     *) info "skipped Claude Code hook merge" ;;
   esac
+fi
+
+step "herdr hooks"
+# After the agent-status merge above: jq's * replaces whole hook arrays, which
+# would drop these entries. install-hooks only appends what is missing.
+if command -v jq >/dev/null 2>&1; then
+  run "$DOTFILES/skills/orch/scripts/install-hooks" --register-only
+else
+  info "jq not found; skipping herdr hook registration"
 fi
 
 step "tmux plugin manager"

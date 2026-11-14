@@ -1,0 +1,59 @@
+#!/bin/sh
+# Installs the orch skill's Claude Code hooks: links them into ~/.claude/hooks and
+# registers them in ~/.claude/settings.json. Safe to re-run; it only adds what is missing.
+#   --register-only   skip the links (when something else, like a dotfiles installer, makes them)
+# ORCH_SETTINGS and ORCH_HOOKS_DIR override the two locations.
+set -eu
+
+SETTINGS="${ORCH_SETTINGS:-$HOME/.claude/settings.json}"
+HOOKS_DIR="${ORCH_HOOKS_DIR:-$HOME/.claude/hooks}"
+SRC="$(cd "$(dirname "$0")/../hooks" && pwd)"
+STAMP="$(date +%Y%m%d%H%M%S)"
+link=1
+[ "${1:-}" = "--register-only" ] && link=0
+
+command -v jq >/dev/null 2>&1 || { echo "install-hooks: jq is required" >&2; exit 1; }
+
+if [ $link = 1 ]; then
+  mkdir -p "$HOOKS_DIR"
+  for f in herdr-context.sh orch-worker-activity.sh; do
+    target="$HOOKS_DIR/$f"
+    if [ -L "$target" ] && [ "$(readlink "$target")" = "$SRC/$f" ]; then
+      echo "linked   $target"
+      continue
+    fi
+    if [ -e "$target" ] || [ -L "$target" ]; then
+      mv "$target" "$target.bak.$STAMP"
+      echo "backup   $target.bak.$STAMP"
+    fi
+    ln -s "$SRC/$f" "$target"
+    echo "link     $target -> $SRC/$f"
+  done
+fi
+
+[ -f "$SETTINGS" ] || { mkdir -p "$(dirname "$SETTINGS")"; echo '{}' >"$SETTINGS"; }
+
+# add <event> <needle> <hook group JSON>: appends the group unless a command in that event mentions needle.
+changed=0
+add() {
+  if jq -e --arg e "$1" --arg n "$2" '[.hooks[$e] // [] | .[].hooks[]?.command | strings | contains($n)] | any' "$SETTINGS" >/dev/null; then
+    echo "present  $1 $2"
+    return
+  fi
+  if [ $changed = 0 ]; then cp "$SETTINGS" "$SETTINGS.bak.$STAMP"; fi
+  jq --arg e "$1" --argjson g "$3" '.hooks[$e] = ((.hooks[$e] // []) + [$g])' "$SETTINGS" >"$SETTINGS.tmp"
+  mv "$SETTINGS.tmp" "$SETTINGS"
+  changed=1
+  echo "added    $1 $2"
+}
+
+cmd() { printf "sh '%s/%s'%s" "$HOOKS_DIR" "$1" "${2:+ $2}"; }
+
+add SessionStart herdr-context.sh "$(jq -nc --arg c "$(cmd herdr-context.sh)" \
+  '{matcher: "^(startup|resume|clear|compact|fork)$", hooks: [{type: "command", command: $c, timeout: 10}]}')"
+add UserPromptSubmit orch-worker-activity.sh "$(jq -nc --arg c "$(cmd orch-worker-activity.sh prompt)" \
+  '{hooks: [{type: "command", command: $c, timeout: 15, async: true}]}')"
+add Stop orch-worker-activity.sh "$(jq -nc --arg c "$(cmd orch-worker-activity.sh stop)" \
+  '{hooks: [{type: "command", command: $c, timeout: 15, async: true}]}')"
+
+if [ $changed = 1 ]; then echo "settings backup at $SETTINGS.bak.$STAMP"; fi

@@ -12,10 +12,10 @@ session_id=$(field session_id)
 note="herdr (current; overrides any earlier herdr note in this conversation):"
 
 if [ "${HERDR_ENV:-}" = "1" ] && [ -n "${HERDR_PANE_ID:-}" ]; then
-  echo "$note herdr TUI. workspace=${HERDR_WORKSPACE_ID:-?} tab=${HERDR_TAB_ID:-?} pane=$HERDR_PANE_ID session=${session_id:-?}. Use the 'herdr TUI' commands in CLAUDE.md."
+  echo "$note herdr TUI. workspace=${HERDR_WORKSPACE_ID:-?} tab=${HERDR_TAB_ID:-?} pane=$HERDR_PANE_ID session=${session_id:-?}. /orch makes this chat the project orchestrator."
 elif [ -n "${HC_TERMINAL_ID:-}" ] && command -v hc >/dev/null 2>&1; then
   [ -n "$session_id" ] && hc label "$HC_TERMINAL_ID" "claude.session=$session_id" >/dev/null 2>&1
   labels=$(hc get "$HC_TERMINAL_ID" --json 2>/dev/null | jq -r '.labels // {} | "space=\(.["herdr.space"] // "?") tab=\(.["herdr.tab"] // "?") orch=\(.orch // "-")"' 2>/dev/null)
-  echo "$note herdr-app. terminal=$HC_TERMINAL_ID ${labels:-space=? tab=?} session=${session_id:-?}. Use the 'herdr-app' commands in CLAUDE.md."
+  echo "$note herdr-app. terminal=$HC_TERMINAL_ID ${labels:-space=? tab=?} session=${session_id:-?}. /orch makes this chat the project orchestrator."
 fi
 exit 0

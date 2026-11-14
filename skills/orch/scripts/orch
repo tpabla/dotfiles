@@ -1,0 +1,336 @@
+#!/bin/sh
+# Helpers for the orch skill. Works in herdr-app (through hc) and in the herdr TUI.
+# Calls hc, herdr-app, herdr and jq from PATH; tests put fakes first on PATH.
+set -eu
+
+POLL="${ORCH_POLL:-1}"
+STARTED_PREFIX="working - new input"
+
+usage() {
+  cat <<'EOF'
+usage: orch <command> [args]
+  env                       print herdr-app, tui or none
+  project                   this space's project: its name as a slug, else the git repo name
+  claim [project]           become the orchestrator: label self, rename own tab; a project that
+                            differs from the space name renames the space
+  sync                      follow a renamed space: relabel self and workers, rename own tab
+  workers [project]         this project's workers, one JSON object per line
+  spawn --name N --cwd DIR --item ITEM --tab LABEL (--brief-file F | --resume SESSION_ID)
+                            start a worker Claude session in its own tab
+  send <name> <text>        prompt a worker and return once its turn has started
+  wait <name> [seconds]     wait until the worker's turn ends with a STATUS (default 1800s)
+  doctor                    check the tools and hooks this skill needs
+EOF
+}
+
+die() { echo "orch: $*" >&2; exit 1; }
+
+slug() {
+  printf '%s' "$1" | tr '[:upper:]' '[:lower:]' | sed -e 's/[^a-z0-9][^a-z0-9]*/-/g' -e 's/^-//' | cut -c1-32 | sed 's/-$//'
+}
+
+orch_env() {
+  if [ "${HERDR_ENV:-}" = 1 ] && [ -n "${HERDR_PANE_ID:-}" ]; then echo tui
+  elif [ -n "${HC_TERMINAL_ID:-}" ] && command -v hc >/dev/null 2>&1; then echo herdr-app
+  else echo none
+  fi
+}
+
+need_env() {
+  ENV=$(orch_env)
+  [ "$ENV" != none ] || die "not inside herdr or herdr-app"
+}
+
+# The main repo's name, also from inside one of its worktrees.
+repo_project() {
+  common=$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null || true)
+  if [ -n "$common" ]; then slug "$(basename "$(dirname "$common")")"; else slug "$(basename "$PWD")"; fi
+}
+
+# herdr-app ------------------------------------------------------------------
+
+label_of() { hc get "$1" --json | jq -r --arg k "$2" '.labels[$k] // empty'; }
+my_label() { label_of "$HC_TERMINAL_ID" "$1"; }
+app_ls() { herdr-app ls; }
+space_name() { app_ls | jq -r --arg id "$1" '.spaces[] | select(.id == $id) | .name'; }
+tab_of() {
+  app_ls | jq -r --arg t "$1" '[.spaces[].tabs[] | select(any(.terminals[]; (.terminal // .) == $t)) | .id] | first // empty'
+}
+my_tab() {
+  tab=$(my_label herdr.tab)
+  [ -n "$tab" ] || tab=$(tab_of "$HC_TERMINAL_ID")
+  echo "$tab"
+}
+terminals() { hc ls --json | jq -r '.terminals[].address'; }
+
+# herdr TUI ------------------------------------------------------------------
+
+ws_label() { herdr workspace get "$HERDR_WORKSPACE_ID" | jq -r '.result.workspace.label // empty'; }
+
+# A fresh workspace is labelled with its folder ("~") or a number.
+unlabelled() {
+  [ -z "$1" ] || [ "$1" = "~" ] || ! printf '%s' "$1" | grep -q '[^0-9]'
+}
+
+# commands -------------------------------------------------------------------
+
+cmd_project() {
+  name=""
+  case $(orch_env) in
+    herdr-app) name=$(space_name "$(my_label herdr.space)") ;;
+    tui) name=$(ws_label); if unlabelled "$name"; then name=""; fi ;;
+  esac
+  p=$(slug "$name")
+  [ -n "$p" ] || p=$(repo_project)
+  echo "$p"
+}
+
+relabel_workers() {
+  for t in $(terminals); do
+    [ "$t" = "$HC_TERMINAL_ID" ] && continue
+    if [ "$(label_of "$t" orch)" = "$1" ]; then hc label "$t" "orch=$2" >/dev/null; fi
+  done
+}
+
+cmd_claim() {
+  need_env
+  given="${1:-}"
+  current=$(cmd_project)
+  p=$(slug "${given:-$current}")
+  [ -n "$p" ] || die "empty project name"
+  case $ENV in
+    herdr-app)
+      if [ -n "$given" ] && [ "$p" != "$current" ]; then
+        herdr-app do space.rename --id "$(my_label herdr.space)" --name "$given" >/dev/null
+      fi
+      old=$(my_label orch)
+      hc label "$HC_TERMINAL_ID" "orch=$p" "orch.role=orchestrator" >/dev/null
+      if [ -n "$old" ] && [ "$old" != "$p" ]; then relabel_workers "$old" "$p"; fi
+      tab=$(my_tab)
+      if [ -n "$tab" ]; then herdr-app do tab.rename --id "$tab" --name "$p orchestrator" >/dev/null; fi
+      ;;
+    tui)
+      if { [ -n "$given" ] && [ "$p" != "$current" ]; } || unlabelled "$(ws_label)"; then
+        herdr workspace rename "$HERDR_WORKSPACE_ID" "${given:-$p}" >/dev/null
+      fi
+      herdr tab rename "$HERDR_TAB_ID" "$p orchestrator" >/dev/null
+      ;;
+  esac
+  echo "$p"
+}
+
+cmd_sync() {
+  need_env
+  p=$(cmd_project)
+  if [ "$ENV" = herdr-app ]; then
+    old=$(my_label orch)
+    [ -n "$old" ] || die "not an orchestrator yet; run orch claim"
+    if [ "$old" = "$p" ]; then echo "unchanged $p"; return; fi
+    cmd_claim >/dev/null
+    echo "renamed $old -> $p"
+  else
+    herdr tab rename "$HERDR_TAB_ID" "$p orchestrator" >/dev/null
+    echo "synced $p"
+  fi
+}
+
+cmd_workers() {
+  need_env
+  case $ENV in
+    herdr-app)
+      p="${1:-$(my_label orch)}"
+      [ -n "$p" ] || p=$(cmd_project)
+      for t in $(terminals); do
+        hc get "$t" --json | jq -c --arg p "$p" '
+          select(.labels.orch == $p and .labels["orch.role"] == "worker")
+          | {address, name, item: .labels["orch.item"], state: (.status.state? // .status),
+             status: .labels["orch.status"], session: .labels["claude.session"], where: .labels.where}'
+      done
+      ;;
+    tui)
+      herdr tab list --workspace "$HERDR_WORKSPACE_ID" | jq -c '
+        .result.tabs[] | select(.label | test("^(work|needs-you|review|done):"))
+        | {tab: .tab_id, label, state: .agent_status}'
+      ;;
+  esac
+}
+
+cmd_spawn() {
+  need_env
+  name="" cwd="" item="" tab_label="" brief="" resume=""
+  while [ $# -gt 0 ]; do
+    case $1 in
+      --name) name=$2 ;;
+      --cwd) cwd=$2 ;;
+      --item) item=$2 ;;
+      --tab) tab_label=$2 ;;
+      --brief-file) brief=$2 ;;
+      --resume) resume=$2 ;;
+      *) die "spawn: unknown option $1" ;;
+    esac
+    shift 2
+  done
+  printf '%s' "$name" | grep -Eq '^[a-z][a-z0-9_-]{0,31}$' || die "spawn: --name must match [a-z][a-z0-9_-]{0,31}"
+  [ -d "$cwd" ] || die "spawn: --cwd $cwd is not a directory"
+  [ -n "$item" ] || die "spawn: --item is required"
+  [ -n "$tab_label" ] || die "spawn: --tab is required"
+  if [ -n "$brief" ]; then [ -f "$brief" ] || die "spawn: no brief file $brief"
+  elif [ -z "$resume" ]; then die "spawn: give --brief-file or --resume"
+  fi
+
+  case $ENV in
+    herdr-app)
+      p=$(my_label orch)
+      [ -n "$p" ] || die "not an orchestrator yet; run orch claim"
+      if [ -n "$resume" ]; then set -- claude --resume "$resume"; else set -- claude "$(cat "$brief")"; fi
+      out=$(hc run --bg --json --keep --outlive-parent --name "$name" --parent "$HC_TERMINAL_ID" \
+        --label "orch=$p" --label "orch.role=worker" --label "orch.item=$item" \
+        --label "herdr.space=$(my_label herdr.space)" --cwd "$cwd" -- "$@")
+      addr=$(printf '%s' "$out" | jq -r '.address // empty')
+      [ -n "$addr" ] || die "spawn: hc run gave no address: $out"
+      # keep needs the address; a name is rejected.
+      herdr-app do terminal.keep --terminal "$addr" >/dev/null
+      # The window places the terminal in a new tab shortly after launch.
+      tab="" i=0
+      while [ $i -lt 20 ]; do
+        tab=$(tab_of "$addr")
+        [ -n "$tab" ] && break
+        sleep "$POLL"; i=$((i + 1))
+      done
+      if [ -n "$tab" ]; then herdr-app do tab.rename --id "$tab" --name "$tab_label" >/dev/null; fi
+      jq -nc --arg a "$addr" --arg n "$name" --arg t "$tab" '{address: $a, name: $n, tab: $t}'
+      ;;
+    tui)
+      out=$(herdr tab create --workspace "$HERDR_WORKSPACE_ID" --cwd "$cwd" --label "$tab_label" --no-focus)
+      tab=$(printf '%s' "$out" | jq -r '.result.tab.tab_id // empty')
+      pane=$(printf '%s' "$out" | jq -r '.result.root_pane.pane_id // empty')
+      [ -n "$pane" ] || die "spawn: tab create gave no pane: $out"
+      if [ -n "$resume" ]; then
+        herdr agent start "$name" --kind claude --pane "$pane" -- --resume "$resume" >/dev/null
+      else
+        herdr agent start "$name" --kind claude --pane "$pane" >/dev/null
+        # Sent as a prompt: a long brief on the command line can pass the terminal's line limit.
+        herdr agent prompt "$name" "$(cat "$brief")" >/dev/null
+      fi
+      jq -nc --arg n "$name" --arg t "$tab" --arg p "$pane" '{name: $n, tab: $t, pane: $p}'
+      ;;
+  esac
+}
+
+cmd_send() {
+  need_env
+  [ $# -eq 2 ] || die "usage: orch send <name> <text>"
+  case $ENV in
+    herdr-app)
+      before=$(hc get "$1" --json | jq -r '.turn // 0')
+      hc send "$1" "$2" >/dev/null
+      # Return once the new turn shows, so a following wait can't read the last turn's STATUS.
+      i=0
+      while [ $i -lt 15 ]; do
+        info=$(hc get "$1" --json)
+        turn=$(printf '%s' "$info" | jq -r '.turn // 0')
+        status=$(printf '%s' "$info" | jq -r '.labels["orch.status"] // empty')
+        if [ "$turn" -gt "$before" ]; then break; fi
+        case $status in "$STARTED_PREFIX"*) break ;; esac
+        sleep "$POLL"; i=$((i + 1))
+      done
+      ;;
+    tui) herdr agent prompt "$1" "$2" >/dev/null ;;
+  esac
+  echo "sent"
+}
+
+emit() { jq -nc --arg n "$1" --arg r "$2" --arg s "$3" --arg st "$4" '{name: $n, result: $r, state: $s, status: $st}'; }
+
+# The last STATUS line in text on stdin, without the "STATUS: " prefix.
+last_status() { grep -Eo 'STATUS: *[a-z-]+ *[-–—] *.*' | tail -n 1 | sed -E 's/^STATUS: *//'; }
+
+cmd_wait() {
+  need_env
+  name="${1:-}"
+  [ -n "$name" ] || die "usage: orch wait <name> [seconds]"
+  deadline=$(( $(date +%s) + ${2:-1800} ))
+  state="" status=""
+  while :; do
+    left=$(( deadline - $(date +%s) ))
+    if [ "$left" -le 0 ]; then emit "$name" timeout "$state" "$status"; return; fi
+    case $ENV in
+      herdr-app)
+        w=$(hc wait "$name" --json --timeout "$left")
+        state=$(printf '%s' "$w" | jq -r '.status // empty')
+        if [ "$(printf '%s' "$w" | jq -r '.exit_code // .signal // empty')" != "" ]; then
+          emit "$name" exited "$state" "$(label_of "$name" orch.status)"; return
+        fi
+        case $state in
+          working) continue ;;
+          blocked) emit "$name" blocked "$state" "$(label_of "$name" orch.status)"; return ;;
+        esac
+        # The worker's Stop hook copies its STATUS line into orch.status a few seconds after the turn.
+        i=0
+        while [ $i -lt 10 ]; do
+          status=$(label_of "$name" orch.status)
+          case $status in
+            "" | "$STARTED_PREFIX"*) ;;
+            *) emit "$name" settled "$state" "$status"; return ;;
+          esac
+          sleep "$POLL"; i=$((i + 1))
+        done
+        ;;
+      tui)
+        herdr agent wait "$name" --timeout $((left * 1000)) >/dev/null 2>&1 || true
+        state=$(herdr agent get "$name" | jq -r '[.. | objects | (.agent_status? // .status? // empty) | strings] | first // "unknown"')
+        case $state in
+          working) continue ;;
+          blocked) emit "$name" blocked "$state" ""; return ;;
+        esac
+        out=$(herdr agent read "$name" --source recent-unwrapped --lines 40)
+        text=$(printf '%s' "$out" | jq -r '.result.text // .result.output // .result.content // empty' 2>/dev/null || true)
+        [ -n "$text" ] || text=$out
+        status=$(printf '%s\n' "$text" | last_status)
+        if [ -n "$status" ]; then emit "$name" settled "$state" "$status"; return; fi
+        ;;
+    esac
+    # Quiet without a STATUS: usually waiting on its own subagents. Keep waiting.
+    sleep "$POLL"; sleep "$POLL"
+  done
+}
+
+cmd_doctor() {
+  settings="${ORCH_SETTINGS:-$HOME/.claude/settings.json}"
+  bad=0
+  ok() { echo "ok       $1"; }
+  miss() { echo "missing  $1"; bad=1; }
+  ENV=$(orch_env)
+  echo "env      $ENV"
+  if command -v jq >/dev/null 2>&1; then ok jq; else miss "jq (brew install jq)"; fi
+  case $ENV in
+    herdr-app)
+      for c in hc herdr-app python3; do if command -v $c >/dev/null 2>&1; then ok $c; else miss $c; fi; done ;;
+    tui)
+      if command -v herdr >/dev/null 2>&1; then ok herdr; else miss herdr; fi ;;
+    none) miss "herdr or herdr-app session (run inside a herdr tab)" ;;
+  esac
+  hooks=$(jq -r '[.hooks // {} | to_entries[] | .key as $e | .value[].hooks[]?.command | "\($e) \(.)"] | .[]' "$settings" 2>/dev/null || true)
+  check() { if printf '%s\n' "$hooks" | grep -q "^$1 .*$2"; then ok "$1 hook $2"; else miss "$1 hook $2 (run scripts/install-hooks)"; fi; }
+  check SessionStart herdr-context.sh
+  check UserPromptSubmit orch-worker-activity.sh
+  check Stop orch-worker-activity.sh
+  return $bad
+}
+
+cmd="${1:-}"
+[ $# -gt 0 ] && shift
+case $cmd in
+  env) orch_env ;;
+  project) cmd_project ;;
+  claim) cmd_claim "$@" ;;
+  sync) cmd_sync ;;
+  workers) cmd_workers "$@" ;;
+  spawn) cmd_spawn "$@" ;;
+  send) cmd_send "$@" ;;
+  wait) cmd_wait "$@" ;;
+  doctor) cmd_doctor ;;
+  slug) printf '%s\n' "$(slug "${1:-}")" ;;
+  -h | --help | help | "") usage ;;
+  *) usage >&2; exit 2 ;;
+esac
