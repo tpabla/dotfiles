@@ -106,7 +106,7 @@ Status glyphs: Claude `✳`, Codex `⬢`, other `●` — yellow pulsing while w
 
 ### Hooks
 
-`install.sh` links `agents/codex-hooks.json` to `~/.codex/hooks.json` and offers to merge `agents/claude-hooks.json` into `~/.claude/settings.json` (backing it up first). The Claude one is merged rather than linked because `settings.json` holds unrelated settings.
+`install.sh` links `agents/codex-hooks.json` to `~/.codex/hooks.json` and offers to add the hooks in `agents/claude-hooks.json` to `~/.claude/settings.json` (backing it up first). The Claude ones are merged rather than linked because `settings.json` holds unrelated settings. Hooks are matched by command: missing ones are added, and hooks you configured yourself are kept. That file also registers `claude/hooks/herdr-context.sh` as a SessionStart hook, which tells Claude whether it is running in the herdr TUI or herdr-app.
 
 Codex additionally needs hooks enabled and trusted:
 

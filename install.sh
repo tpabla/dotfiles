@@ -223,36 +223,50 @@ info "enable Codex hooks: add [features] hooks = true to ~/.codex/config.toml,"
 info "then run /hooks inside Codex and trust the commands"
 
 CLAUDE_SETTINGS="$HOME/.claude/settings.json"
+CLAUDE_HOOKS="$DOTFILES/agents/claude-hooks.json"
+# Hooks are added by command, so hooks configured outside this repo are kept
+# and rerunning never duplicates an entry.
+MISSING_HOOKS_JQ='[.[0].hooks // {} | .[][]?.hooks[]?.command] as $have
+  | [.[1].hooks[][].hooks[].command | select(. as $c | $have | any(. == $c) | not)]'
+ADD_HOOKS_JQ='reduce (.[1].hooks | to_entries[]) as $e (.[0];
+  reduce $e.value[] as $grp (.;
+    reduce $grp.hooks[] as $h (.;
+      if [.hooks[$e.key][]?.hooks[]?.command] | any(. == $h.command) then .
+      else .hooks[$e.key] = ((.hooks[$e.key] // []) + [$grp | .hooks = [$h]]) end)))'
 if ! command -v jq >/dev/null 2>&1; then
   info "jq not found; skipping Claude Code hook merge"
-elif [ ! -f "$CLAUDE_SETTINGS" ]; then
-  info "no $CLAUDE_SETTINGS; skipping Claude Code hook merge"
-elif [ "$(jq -r '.hooks.Stop[0].hooks[0].command // ""' "$CLAUDE_SETTINGS")" = \
-       "$(jq -r '.hooks.Stop[0].hooks[0].command // ""' "$DOTFILES/agents/claude-hooks.json")" ]; then
-  info "Claude Code hooks already installed"
 else
-  reply=y
-  if [ "$CONFLICT_MODE" = ask ]; then
-    printf '  merge agent-status hooks into %s?\n' "$CLAUDE_SETTINGS"
-    read -r -p "    this overwrites any existing .hooks entries [y/N] " reply </dev/tty
-  fi
-  case "$reply" in
-    y|Y)
-      if [ "$DRY_RUN" = 1 ]; then
-        info "would merge hooks into $CLAUDE_SETTINGS"
-      else
-        cp "$CLAUDE_SETTINGS" "$CLAUDE_SETTINGS.bak.$STAMP"
-        if jq -s '.[0] * .[1]' "$CLAUDE_SETTINGS" "$DOTFILES/agents/claude-hooks.json" \
-             > "$CLAUDE_SETTINGS.tmp" && mv "$CLAUDE_SETTINGS.tmp" "$CLAUDE_SETTINGS"; then
-          info "merged hooks (backup at $CLAUDE_SETTINGS.bak.$STAMP)"
+  settings_json() { cat "$CLAUDE_SETTINGS" 2>/dev/null || echo '{}'; }
+  missing="$(jq -rs "$MISSING_HOOKS_JQ | .[]" <(settings_json) "$CLAUDE_HOOKS")"
+  if [ -z "$missing" ]; then
+    info "Claude Code hooks already installed"
+  else
+    reply=y
+    if [ "$CONFLICT_MODE" = ask ]; then
+      printf '  add these hooks to %s?\n' "$CLAUDE_SETTINGS"
+      printf '%s\n' "$missing" | sed 's/^/    /'
+      read -r -p "    existing hooks are kept [y/N] " reply </dev/tty
+    fi
+    case "$reply" in
+      y|Y)
+        if [ "$DRY_RUN" = 1 ]; then
+          info "would add hooks to $CLAUDE_SETTINGS:"
+          printf '%s\n' "$missing" | sed 's/^/    /'
         else
-          rm -f "$CLAUDE_SETTINGS.tmp"
-          info "merge failed; $CLAUDE_SETTINGS left unchanged"
+          [ -f "$CLAUDE_SETTINGS" ] && cp "$CLAUDE_SETTINGS" "$CLAUDE_SETTINGS.bak.$STAMP"
+          mkdir -p "$(dirname "$CLAUDE_SETTINGS")"
+          if jq -s "$ADD_HOOKS_JQ" <(settings_json) "$CLAUDE_HOOKS" \
+               > "$CLAUDE_SETTINGS.tmp" && mv "$CLAUDE_SETTINGS.tmp" "$CLAUDE_SETTINGS"; then
+            info "added hooks to $CLAUDE_SETTINGS"
+          else
+            rm -f "$CLAUDE_SETTINGS.tmp"
+            info "merge failed; $CLAUDE_SETTINGS left unchanged"
+          fi
         fi
-      fi
-      ;;
-    *) info "skipped Claude Code hook merge" ;;
-  esac
+        ;;
+      *) info "skipped Claude Code hook merge" ;;
+    esac
+  fi
 fi
 
 step "herdr hooks"
