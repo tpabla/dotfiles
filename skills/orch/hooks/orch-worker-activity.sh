@@ -55,6 +55,8 @@ def own_tab():
 action = os.environ.get("ORCH_ACTION")
 if action == "prompt":
     prompt = " ".join(str(hook.get("prompt") or "").split())
+    if prompt.startswith("<task-notification>"):
+        raise SystemExit(0)
     set_status("working - new input: " + prompt[:80])
     tab = own_tab()
     if tab and tab.get("name", "").startswith("needs-you:"):

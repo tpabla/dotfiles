@@ -1,8 +1,12 @@
 server {
-    listen 80;
+    # Bind to the Tailscale IP (or 127.0.0.1); never 0.0.0.0.
+    listen __LISTEN__;
     server_name _;
     root __EXPLAIN_HOME__;
     charset utf-8;
+    # macOS + Tailscale: with sendfile on, response headers get dropped on the utun interface.
+    sendfile off;
+    tcp_nodelay off;
 
     location = / {
         return 302 /docs/;

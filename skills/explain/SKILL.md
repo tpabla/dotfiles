@@ -23,6 +23,7 @@ Docs are single self-contained HTML files. nginx serves them from `~/.explain-sk
 
 ## Workflow
 
+0. **Check the hosting first, every time.** Run `curl -s -o /dev/null -w "%{http_code}" <base_url>/docs/` from this machine. If it isn't `200`, or `config.json` names a different machine than this one (`hostname`), follow [Hosting](#hosting-set-up-once-per-machine) before writing anything. A doc nobody can open isn't delivered.
 1. **Choose the project.** Use the current repo's directory name unless the user names one. Pick the doc type from `config.json`:
 
    | doc_type | Use for |
@@ -43,7 +44,7 @@ Other commands:
 - `CLI list [--project p] [--type t] [--all]` finds docs and their URLs. Use it when the user asks for a link to something already written.
 - `CLI archive <path-or-url>` and `CLI unarchive <path-or-url>` set the status. Archived docs are hidden on index pages behind a "show archived" toggle, and their URL keeps working with an archived banner.
 - `CLI index` rebuilds all index pages.
-- If the site isn't reachable, run `~/.claude/skills/explain/setup.sh`. It's idempotent: it installs nginx, vendors the libraries, links the assets and restarts nginx.
+- If the site isn't reachable, follow [Hosting](#hosting-set-up-once-per-machine). Don't just rerun `setup.sh`.
 
 ## Writing the doc
 
@@ -144,6 +145,46 @@ Use `--type slides`. The file holds markdown inside `<script type="text/markdown
 
 Navigation: arrow keys, space, h/l, swipe or the on-screen buttons. `#n` in the URL opens slide n.
 
+## Hosting: set up once per machine
+
+Docs are served by nginx on the machine the agent runs on, so the user can open them from any of their devices. `config.json` is per machine. Never assume another machine's `base_url` is right here: a doc written on a laptop isn't served by a Mac Studio.
+
+### 1. Ask the user, don't assume
+
+Use one question set:
+- **Which machine is this, and what should links use?** Show `hostname` and the Tailscale name you found as the default answer.
+- **Are you on Tailscale, and do you want docs shareable with your other devices (or teammates) on the tailnet?** Default: yes.
+
+### 2. Prefer the MagicDNS name
+
+- When the user is on Tailscale, `base_url` is `http://<magicdns-short-name>`, for example `http://volley-macbook-pro`. Docs then live at `http://<magicdns>/docs/`.
+- Find the name with `tailscale status --self --json` (`.Self.DNSName`, first label). On macOS the CLI may be `/Applications/Tailscale.app/Contents/MacOS/Tailscale`.
+- Bind only to the machine's Tailscale IP, never `0.0.0.0`, so docs aren't exposed on other networks.
+- Only use a custom domain (such as `work.taranpabla.com`) or `localhost` if the user asks for it. Even when a domain also serves the docs, links use the MagicDNS name.
+
+### 3. Fit into the nginx that's already there
+
+Read the existing config before writing anything: `nginx -T`, `$(brew --prefix)/etc/nginx/servers/*`, and `lsof -nP -iTCP -sTCP:LISTEN | grep nginx`.
+
+| What's on `<tailscale-ip>:80` | Do this |
+| --- | --- |
+| Nothing | Write `servers/explain.conf` from `nginx/explain.conf.template`, with `listen <tailscale-ip>:80;` |
+| Another server block (another site) | Don't add a second server on the same address and port: nginx would send every request to the first one. Write `$(brew --prefix)/etc/nginx/explain-location.conf` from `nginx/explain-location.conf.template` and add `include explain-location.conf;` to that server. `/docs/` must be free there. Back up the file first, and tell the user what you changed. |
+
+Rules learned the hard way:
+- **macOS + Tailscale:** set `sendfile off; tcp_nodelay off;` in the server that serves docs. With `sendfile` on, macOS drops the response headers on the Tailscale interface: curl reports "HTTP/0.9" and browsers show nothing.
+- **Don't combine `try_files` with `alias`.** In a location using `alias`, rely on `index` and nginx's default 404 instead.
+- **Reload, don't restart, when nginx runs as root.** Check with `ps -o user= -p $(pgrep -o nginx)`. If it's `root`, `brew services restart nginx` as the user can take down the other sites. Run `nginx -t`, then ask the user to run `! sudo nginx -s reload`.
+- **Assets:** run `setup.sh` with `EXPLAIN_NGINX=skip` to vendor the libraries and link the assets without touching nginx.
+
+### 4. Verify
+
+Run all four and report the results:
+- `curl -s -o /dev/null -w "%{http_code} %{http_version}" <base_url>/docs/` gives `200 1.1`.
+- `curl` the newest doc and `/docs/_assets/explain.css`; both should return 200.
+- Every other site on the same server still returns 200.
+- Run `CLI index`, so index links use the new `base_url`.
+
 ## Config
 
-`~/.explain-skill/config.json` sets `base_url`, which defaults to `http://mac-studio` (this Mac's Tailscale name). It also sets `docs_root` and the `doc_types` map. To add a doc type, add it to the map.
+`~/.explain-skill/config.json` sets `base_url` (per machine; see Hosting), `docs_root` and the `doc_types` map. To add a doc type, add it to the map.
