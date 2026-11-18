@@ -25,8 +25,9 @@ usage: ./install.sh [options]
 Each skill in skills/ is confirmed individually before it is installed at the
 user level in ~/.claude/skills.
 
-Existing paths are never deleted. A backup moves the current path to
-<name>.bak.<timestamp> alongside it, then creates the symlink.
+Existing files and directories are never deleted. A backup moves the current
+path to <name>.bak.<timestamp> alongside it, then creates the symlink. An
+existing symlink pointing elsewhere is replaced without asking.
 USAGE
 }
 
@@ -86,15 +87,21 @@ link() {
   fi
 
   if [ -L "$target" ]; then
-    # Tolerate a trailing slash on an existing link target.
-    current="$(readlink "$target")"
-    if [ "${current%/}" = "$src" ]; then
+    # Compare resolved paths so relative or differently spelled links still match.
+    if [ "$(realpath "$target" 2>/dev/null)" = "$(realpath "$src")" ]; then
       ALREADY=$((ALREADY + 1))
       return
     fi
+    # A symlink holds no data, so replace it rather than prompting or backing it up.
+    current="$(readlink "$target")"
+    run rm "$target" || { info "could not unlink $target"; return; }
+    run ln -s "$src" "$target"
+    LINKED=$((LINKED + 1))
+    info "relinked $target -> $src (was -> $current)"
+    return
   fi
 
-  if [ -e "$target" ] || [ -L "$target" ]; then
+  if [ -e "$target" ]; then
     local action="$CONFLICT_MODE" reply
     if [ "$action" = ask ]; then
       local kind="file"
@@ -160,10 +167,10 @@ link kitty "$HOME/.config/kitty"
 link nvim  "$HOME/.config/nvim"
 link tmux  "$HOME/.config/tmux"
 link herdr/config.toml "$HOME/.config/herdr/config.toml"
-link herdr-app/mods/orchestra "$HOME/.config/herdr-app/mods/orchestra"
+link herdr-app/mods/orchestra "$HOME/.config/herdr-app/mods/orchestra" "$HOME/.config/herdr-app/backups/mods/orchestra"
 link herdr-app/themes/neon.json "$HOME/.config/herdr-app/themes/neon.json"
-link herdr-app/mods/vim-nav "$HOME/.config/herdr-app/mods/vim-nav"
-link herdr-app/mods/prefix "$HOME/.config/herdr-app/mods/prefix"
+link herdr-app/mods/vim-nav "$HOME/.config/herdr-app/mods/vim-nav" "$HOME/.config/herdr-app/backups/mods/vim-nav"
+link herdr-app/mods/prefix "$HOME/.config/herdr-app/mods/prefix" "$HOME/.config/herdr-app/backups/mods/prefix"
 link herdr-app/layouts/main-vim-nav.json "$HOME/.config/herdr-app/layouts/main-vim-nav.json"
 link herdr-app/keys.json "$HOME/.config/herdr-app/keys.json"
 
