@@ -163,6 +163,7 @@ link herdr/config.toml "$HOME/.config/herdr/config.toml"
 link herdr-app/mods/orchestra "$HOME/.config/herdr-app/mods/orchestra"
 link herdr-app/themes/neon.json "$HOME/.config/herdr-app/themes/neon.json"
 link herdr-app/mods/vim-nav "$HOME/.config/herdr-app/mods/vim-nav"
+link herdr-app/mods/prefix "$HOME/.config/herdr-app/mods/prefix"
 link herdr-app/layouts/main-vim-nav.json "$HOME/.config/herdr-app/layouts/main-vim-nav.json"
 link herdr-app/keys.json "$HOME/.config/herdr-app/keys.json"
 

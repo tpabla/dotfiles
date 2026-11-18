@@ -59,7 +59,8 @@
     "ctrl-9": "space.select:9",
     "cmd-e": "mod.open:herdr-nvim",
     "cmd-o": "herdr-nvim.pick",
-    "cmd-shift-e": "herdr-nvim.reveal"
+    "cmd-shift-e": "herdr-nvim.reveal",
+    "ctrl-b": "prefix.arm"
   },
   "terminal": {
     "cmd-f": "terminal.search",
@@ -75,7 +76,8 @@
     "ctrl-h": "vim-nav.left",
     "ctrl-j": "vim-nav.down",
     "ctrl-k": "vim-nav.up",
-    "ctrl-l": "vim-nav.right"
+    "ctrl-l": "vim-nav.right",
+    "ctrl-b": "prefix.arm"
   },
   "layout:main-vim-nav": {
     "cmd-shift-o": "layout.toggle:orchestra-panel",

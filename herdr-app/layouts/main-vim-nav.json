@@ -61,16 +61,6 @@
           "size": {
             "px": 69
           }
-        },
-        {
-          "id": "vim-nav",
-          "type": "block",
-          "size": {
-            "px": 0
-          },
-          "content": {
-            "mod": "vim-nav"
-          }
         }
       ],
       "size": {
@@ -204,6 +194,26 @@
           },
           "size": {
             "px": 28
+          }
+        },
+        {
+          "id": "vim-nav",
+          "type": "block",
+          "size": {
+            "px": 0
+          },
+          "content": {
+            "mod": "vim-nav"
+          }
+        },
+        {
+          "id": "prefix",
+          "type": "block",
+          "size": {
+            "px": 0
+          },
+          "content": {
+            "mod": "prefix"
           }
         }
       ],
