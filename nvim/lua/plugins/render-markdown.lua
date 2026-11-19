@@ -150,6 +150,23 @@ local function fit_png(src)
     return link
 end
 
+-- herdr-app terminals report 0x0 pixels, so snacks would size every image to
+-- nothing. Use the cell size herdr-app answers CSI 16 t with instead; nvim
+-- doesn't pass that reply on, so it is fixed here.
+local fallback_cell = { width = 10, height = 20 }
+
+local function with_pixel_size(size)
+    return function()
+        local s = size()
+        if s.width == 0 or s.height == 0 then
+            s.cell_width, s.cell_height = fallback_cell.width, fallback_cell.height
+            s.width, s.height = s.columns * s.cell_width, s.rows * s.cell_height
+            s.scale = math.max(1, s.cell_width / 8)
+        end
+        return s
+    end
+end
+
 -- Source of the mermaid block under the cursor, or nil
 local function mermaid_at_cursor()
     local row = vim.api.nvim_win_get_cursor(0)[1] - 1
@@ -421,6 +438,7 @@ return {
             -- snacks sets images up on the first file read, so a markdown buffer
             -- built in memory (e.g. todo-ai slides) would never get diagrams
             require("snacks.image").setup()
+            Snacks.image.terminal.size = with_pixel_size(Snacks.image.terminal.size)
             local convert = Snacks.image.convert.convert
             Snacks.image.convert.convert = function(o)
                 o.src = fit_png(o.src)
